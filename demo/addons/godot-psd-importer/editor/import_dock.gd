@@ -27,6 +27,11 @@ onready var _target_folder_dialog_button : Button
 signal exported_textures_created
 
 func _process(_delta : float):
+	if OS.get_name() != "Windows":
+		push_error("Failed to load plugin for OS '{0}', plugin is only available for Windows!".format([OS.get_name()]))
+		set_process(false)
+		return
+
 	# Lazy initialization to avoid any problems...
 	if not _is_everything_connected:
 		if _verbose_mode : print("Attempting to connect all necessary signals!")
