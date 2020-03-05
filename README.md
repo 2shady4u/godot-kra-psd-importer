@@ -35,7 +35,9 @@ An example project, named "demo", can also be downloaded from the releases tab.
 
 # Usage
 
-After succesful activation of the plugin, an additional panel should have appeared next to the 'import'-panel.
+After succesful activation of the plugin, an additional panel should have appeared next to the 'Import'-panel.
+
+![Import Plugin Editor](readme/import_plugin_editor.PNG?raw=true "Import Plugin Editor")
 
 Several fields are available:
 - **PSD File** (String ,default value='res://addons/godot-psd-importer/examples/Sample.psd')
