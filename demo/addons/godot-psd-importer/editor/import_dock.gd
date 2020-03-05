@@ -1,0 +1,103 @@
+# ############################################################################ #
+# Copyright © 2020-present Piet Bronders & Jeroen De Geeter <piet.bronders@gmail.com>
+# Licensed under the MIT License.
+# See LICENSE in the project root for license information.
+# ############################################################################ #
+
+tool
+extends Control
+
+enum FIELDS {PSD_FILE, TARGET_FOLDER}
+
+var _editor_file_dialog := EditorFileDialog.new()
+var _data_fields := {"psd_file_path": "res://addons/godot-psd-importer/examples/Sample.psd", "target_folder_path": "res://graphics/"}
+var _is_everything_connected := false
+var _verbose_mode := true
+
+const PSDImporter := preload("res://addons/godot-psd-importer/bin/gdpsd.gdns")
+
+onready var _import_button : Button
+
+onready var _psd_file_line_edit : LineEdit
+onready var _psd_file_dialog_button : Button
+
+onready var _target_folder_line_edit : LineEdit
+onready var _target_folder_dialog_button : Button
+
+signal exported_textures_created
+
+func _process(_delta : float):
+	# Lazy initialization to avoid any problems...
+	if not _is_everything_connected:
+		if _verbose_mode : print("Attempting to connect all necessary signals!")
+		_import_button = $VSplitContainer/BuildVBoxContainer/HBoxContainer/ImportButton
+
+		var psd_file_container := $VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer/PsdFileContainer
+		_psd_file_line_edit = psd_file_container.get_node("PsdFileLineEdit")
+		_psd_file_dialog_button = psd_file_container.get_node("PsdFileDialogButton")
+
+		_psd_file_line_edit.connect("text_entered", self, "_on_file_or_folder_selected", [FIELDS.PSD_FILE])
+		_psd_file_line_edit.text = _data_fields.psd_file_path
+		_psd_file_dialog_button.connect("pressed", self, "_on_dialog_button_pressed", [FIELDS.PSD_FILE])
+
+		var target_folder_container := $VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer/TargetFolderContainer
+		_target_folder_line_edit = target_folder_container.get_node("TargetFolderLineEdit")
+		_target_folder_dialog_button = target_folder_container.find_node("TargetFolderDialogButton")
+
+		_target_folder_line_edit.connect("text_entered", self, "_on_file_or_folder_selected", [FIELDS.TARGET_FOLDER])
+		_target_folder_line_edit.text = _data_fields.target_folder_path
+		_target_folder_dialog_button.connect("pressed", self, "_on_dialog_button_pressed", [FIELDS.TARGET_FOLDER])
+	
+		_import_button.connect("pressed", self, "_import_button_pressed")
+	
+		add_child(_editor_file_dialog)
+
+		_is_everything_connected = true
+		if _verbose_mode:
+			print("-> SUCCESFUL INITIALIZATION!")
+	else:
+		set_process(false)
+
+func _on_dialog_button_pressed(data_field : int):
+	if _verbose_mode: print("Dialog button pressed...")
+	_editor_file_dialog.current_file = ""
+	_editor_file_dialog.clear_filters()
+
+	match data_field:
+		FIELDS.PSD_FILE:
+			_editor_file_dialog.connect("file_selected", self, "_on_file_or_folder_selected", [data_field])
+			_editor_file_dialog.set_mode(FileDialog.MODE_OPEN_FILE)
+			_editor_file_dialog.add_filter("*.psd;Photoshop Document")
+		FIELDS.TARGET_FOLDER:
+			_editor_file_dialog.connect("dir_selected", self, "_on_file_or_folder_selected", [data_field])
+			_editor_file_dialog.set_mode(FileDialog.MODE_OPEN_DIR)
+
+	_editor_file_dialog.set_access(FileDialog.ACCESS_FILESYSTEM)
+	_editor_file_dialog.popup_centered(Vector2(1280, 800))
+
+func _on_file_or_folder_selected(path: String, data_field : int):
+	if _verbose_mode: print("File or folder selected...'{0}'".format([path]))
+	match data_field:
+		FIELDS.PSD_FILE:
+			_data_fields.psd_file_path = ProjectSettings.localize_path(path)
+			_psd_file_line_edit.text = _data_fields.psd_file_path
+			_psd_file_line_edit.update()
+			if _editor_file_dialog.is_connected("file_selected", self, "_on_file_or_folder_selected"):
+				_editor_file_dialog.disconnect("file_selected", self, "_on_file_or_folder_selected")
+		FIELDS.TARGET_FOLDER:
+			_data_fields.target_folder_path = ProjectSettings.localize_path(path)
+			_target_folder_line_edit.text = _data_fields.target_folder_path
+			_target_folder_line_edit.update()
+			if _editor_file_dialog.is_connected("dir_selected", self, "_on_file_or_folder_selected"):
+				_editor_file_dialog.disconnect("dir_selected", self, "_on_file_or_folder_selected")
+
+func _import_button_pressed():
+	if _verbose_mode: print("Import button pressed...")
+	var psd_importer = PSDImporter.new()
+	psd_importer.psd_file_path = _data_fields.psd_file_path
+	psd_importer.target_folder_path = _data_fields.target_folder_path
+
+	var result : int = psd_importer.export_psd()
+	print(result)
+	
+	emit_signal("exported_textures_created")
