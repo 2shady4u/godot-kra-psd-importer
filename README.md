@@ -11,6 +11,13 @@ Currently the plugin is only able to export to the Truevision TGA format. Suppor
 
 This is an unfortunate constraint of the [PSD Library SDK](https://molecular-matters.com/products_psd_sdk.html), a library that is used to make this plugin work. Efforts to make this library accessible in Linux are ongoing.
 
+# Roadmap
+
+- [ ] Export to PNG
+- [ ] Support for Krita *.kra*-files
+- [ ] Creation of a PackedScene that mirrors the PSD/KRA layer structure.
+- [ ] Addition of metadata interface to create advanced functionalities. (parallax, tweening, ...)
+
 # How to install?
 
 Re-building Godot from scratch is **NOT** required, the proper way of installing this plugin is to either install it through the Asset Library or to just manually download the build files yourself.
