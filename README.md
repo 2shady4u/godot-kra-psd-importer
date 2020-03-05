@@ -1,3 +1,5 @@
+![Godot PSD Importer banner](icon/godot-psd-importer-banner.png?raw=true "Godot PSD Importer banner")
+
 # godot-psd-importer
 
 **!!!DISCLAIMER !!! WORK IN PROGRESS**
