@@ -150,6 +150,7 @@ void PSD::_register_methods()
 {
 
     register_method("export_psd", &PSD::export_psd);
+	register_method("test", &PSD::test);
 
     register_property<PSD, String>("psd_file_path", &PSD::psd_file_path, "res://addons/godot-psd-importer/examples/Sample.psd");
 	register_property<PSD, String>("target_folder_path", &PSD::target_folder_path, "res://graphics");
@@ -169,6 +170,26 @@ void PSD::_init()
 {
     Godot::print("- initializing C++ -");
 	verbose_mode = false;
+}
+
+int PSD::test()
+{
+
+	int argc = 0;
+	const char* argv = ".";
+	unsigned char pix[]={200,200,200, 100,100,100, 0,0,0, 255,0,0, 0,255,0, 0,0,255};
+
+	// Initialise ImageMagick library
+	Magick::InitializeMagick(argv);
+
+   	// Create Image object and read in from pixel data above
+	//Magick::Image image; 
+	//image.read(2,3,"RGB",Magick::CharPixel,pix);
+
+	// Write the image to a file - change extension if you want a GIF or JPEG
+	//image.write("result.png");
+
+	return 0;
 }
 
 int PSD::export_psd()
