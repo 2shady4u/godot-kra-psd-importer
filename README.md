@@ -6,21 +6,31 @@
 
 GDNative wrapper for Importing PSD-files into Godot 3.1+, making it possible to significantly speed up development when working with PSD-files. Additionally, it does not require any additional compilation or mucking about with build scripts.
 
-Currently the plugin is only able to export to the Truevision TGA format. Support for the PNG format is part of the roadmap and will be implemented asap.
+Currently the plugin is able to export to both PNG and TGA image formats.
 
 ### Supported operating systems:
 - Windows
 
 This is an unfortunate constraint of the [PSD Library SDK](https://molecular-matters.com/products_psd_sdk.html), a library that is used to make this plugin work. Efforts to make this library accessible in Linux are ongoing.
 
-# Roadmap
+### Table Of Contents
 
-- [ ] Export to PNG
+- [Roadmap](#roadmap)
+- [How to install?](#how-to-install)
+- [Usage](#usage)
+- [Credits](#credits)
+- [Blatant Self-Advertisement](#blatant-self-advertisement)
+- [Advanced instructions](#advanced-instructions)
+- [How to contribute?](#how-to-contribute)
+
+# <a name="roadmap">Roadmap</a>
+
+- [x] Export to PNG
 - [ ] Support for Krita *.kra*-files
 - [ ] Creation of a PackedScene that mirrors the PSD/KRA layer structure.
 - [ ] Addition of metadata interface to create advanced functionalities. (parallax, tweening, ...)
 
-# How to install?
+# <a name="how-to-install">How to install?</a>
 
 Re-building Godot from scratch is **NOT** required, the proper way of installing this plugin is to either install it through the Asset Library or to just manually download the build files yourself.
 
@@ -42,7 +52,7 @@ It's also possible to manually download the build files found in the [releases](
 
 An example project, named "demo", can also be downloaded from the releases tab. 
 
-# Usage
+# <a name="usage">Usage</a>
 
 After succesful activation of the plugin, an additional panel should have appeared next to the 'Import'-panel.
 
@@ -53,17 +63,27 @@ Several fields are available:
 
 Path to the **.psd*-file that is to be exported.
 
-- **Target Folder** (String, default='res://graphics/')
+- **Target Folder** (String, default='res://')
 
 Folder to which the exported layers of the **.psd*-file, as given by 'PSD File', will be saved.
 
+- **Export Type** (Int, default=ExportType.PNG)
+
+Image format to which the exported layers of the **.psd*-file will be converted.
+
 After setting these fields correctly, the 'import'-button can be used to start the importing process.
 
-# Credits
+# <a name="credits">Credits</a>
 
 This plugin makes heavy use of the [PSD Library SDK](https://molecular-matters.com/products_psd_sdk.html), without which this plugin would be impossible.
 
-# Advanced instructions
+For enabling PNG exporting functionalities, the [ImageMagick](https://imagemagick.org/index.php) libraries are employed and the necessary *.dll are included in the addon. 
+
+# <a name="blatant-self-advertisement">Blatant Self-Advertisement</a>
+
+This plugin was made by Gamechuck and is actively used during development of [Trip the Ark Fantastic](https://www.tripthearkfantastic.com/), a colourful game about societal and scientific themes set in the fabled Animal Kingdom. Be sure to check it out!
+
+# <a name="roadmap">Advanced instructions</a>
 
 For more advanced usage, the binaries can also be called directly from GDScript without using the editor plugin at all.
 This might be preferred in some more obscure/creative cases and is fully supported by the plugin.
@@ -74,17 +94,45 @@ This might be preferred in some more obscure/creative cases and is fully support
 
 Path to the *.psd-file that is to be exported. Both *res://* and *user://* keywords can be used to define the path.
 
-- **target_folder_path** (String, default='res://graphics/')
+- **target_folder_path** (String, default='res://')
 
-Folder to which the exported layers of the *.psd-file, as given by psd_file_path, will be saved. Both *res://* and *user://* keywords can be used to define the folder.
+Folder to which the exported layers of the **.psd*-file, as given by psd_file_path, will be saved. Both *res://* and *user://* keywords can be used to define the folder.
+
+- **export_type** (int, default=0)
+
+    * PNG (= 0)
+    * TGA (= 1)
+
+Image format to which the layers of **.psd*-file will be exported. Both PNG and TGA formats are available.
 
 - **verbose_mode** (Boolean, default=false)
 
-Setting verbose_mode on True results in an information dump in the Godot console that is handy for .
+Setting verbose_mode on True results in an information dump in the Godot console that is handy for debugging purposes.
 
 ## Functions
 
-- Boolean success = **import_psd()**
+- Boolean success = **export_psd()**
+
+Exports the layers of a **.psd*-file, as given by psd_file_path, to a target folder, as given by target_folder_path. Exported image format is either PNG or TGA as given by the export_type variable.
 
 
+# <a name="how-to-contribute">How to contribute?</a>
+
+First clone the project and install SCons and ImageMagick. Secondly, the C++ bindings have to be build from scratch using the files present in the godot-cpp submodule and following command:
+
+Regarding ImageMagick, it is imperative that the dynamic libraries are installed as well. It's an togglable option during installation, so don't forget to turn it on! Also, you might have to change the ImageMagick installation path inside of the SConstruct script. (The variable is called 'magick_bindings_path')
+
+```
+scons p=windows bits=64 target=release generate_bindings=yes
+```
+
+Exporting for the 'release' target is unfortunately a necessity at the moment due to the ImageMagick libraries only being readily available in release format.
+
+Afterwards, the SContruct file found in the repository should be sufficient to build this project's C++ source code for Windows, with the help of following command:
+
+```
+scons p=windows target=release bits=64
+```
+
+Tutorials for making and extending GDNative scripts are available [here](https://docs.godotengine.org/en/latest/tutorials/plugins/gdnative/gdnative-cpp-example.html) in the Official Godot Documentation. Build files are currently only available for 64-bits systems.
 
