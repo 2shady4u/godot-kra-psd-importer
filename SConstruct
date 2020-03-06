@@ -17,6 +17,7 @@ opts.Add(PathVariable('target_name', 'The library name.', 'lidgdpsd', PathVariab
 # Local dependency paths, adapt them to your setup
 godot_headers_path = "godot-cpp/godot_headers/"
 cpp_bindings_path = "godot-cpp/"
+magick_bindings_path = 'C:/Program Files/ImageMagick-7.0.9-Q16/'
 cpp_library = "libgodot-cpp"
 
 # only support 64 at this time..
@@ -81,13 +82,24 @@ else:
 cpp_library += '.' + str(bits)
 
 # make sure our binding library is properly includes
-env.Append(CPPPATH=['.', godot_headers_path, cpp_bindings_path + 'include/', cpp_bindings_path + 'include/core/', cpp_bindings_path + 'include/gen/'])
-env.Append(LIBPATH=[cpp_bindings_path + 'bin/'])
-env.Append(LIBS=[cpp_library])
+env.Append(CPPPATH=['.', 
+godot_headers_path, 
+cpp_bindings_path + 'include/', 
+cpp_bindings_path + 'include/core/', 
+cpp_bindings_path + 'include/gen/', 
+magick_bindings_path,
+magick_bindings_path + 'include/',
+magick_bindings_path + 'include/Magick++/',
+magick_bindings_path + 'include/MagickCore/',
+magick_bindings_path + 'include/MagickWand/'])
+env.Append(LIBPATH=[cpp_bindings_path + 'bin/', magick_bindings_path + 'lib/'])
+env.Append(LIBS=[cpp_library, 'CORE_RL_Magick++_', 'CORE_RL_MagickWand_', 'CORE_RL_MagickCore_'])
+
+print(cpp_bindings_path)
 
 # tweak this if you want to use different folders, or more folders, to store your source code in.
 env.Append(CPPPATH=['src/'])
-sources = [Glob('src/*.cpp'), Glob('src/Samples/*.cpp'), Glob('src/Psd/*.cpp'), 'src/Psd/Psdminiz.c']
+sources = [Glob('src/*.cpp'), Glob('src/exporters/*.cpp'), Glob('src/Psd/*.cpp'), 'src/Psd/Psdminiz.c']
 
 library = env.SharedLibrary(target=env['target_path'] + env['target_name'] , source=sources)
 

@@ -33,7 +33,8 @@
 #include "Psd/PsdExport.h"
 #include "Psd/PsdExportDocument.h"
 
-#include "Samples/PsdTgaExporter.h"
+#include "exporters/PsdTgaExporter.h"
+#include "exporters/PsdPngExporter.h"
 
 PSD_PUSH_WARNING_LEVEL(0)
 	// disable annoying warning caused by xlocale(337): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
@@ -150,11 +151,13 @@ void PSD::_register_methods()
 {
 
     register_method("export_psd", &PSD::export_psd);
+	register_method("test", &PSD::test);
 
     register_property<PSD, String>("psd_file_path", &PSD::psd_file_path, "res://addons/godot-psd-importer/examples/Sample.psd");
 	register_property<PSD, String>("target_folder_path", &PSD::target_folder_path, "res://graphics");
 
 	register_property<PSD, bool>("verbose_mode", &PSD::verbose_mode, false);
+	register_property<PSD, int>("export_type", &PSD::export_type, ExportType::PNG);
 }
 
 PSD::PSD()
@@ -169,6 +172,27 @@ void PSD::_init()
 {
     Godot::print("- initializing C++ -");
 	verbose_mode = false;
+}
+
+int PSD::test()
+{
+
+	unsigned char pix[]={200,200,200, 100,100,100, 0,0,0, 255,0,0, 0,255,0, 0,0,255};
+
+	// Initialise ImageMagick library
+	Magick::InitializeMagick(NULL);
+
+	Godot::print("after init");
+
+   	// Create Image object and read in from pixel data above
+	Magick::Image image;
+	image.read(2, 3, "RGB", MagickCore::CharPixel, pix);
+
+	// Write the image to a file - change extension if you want a GIF or JPEG
+	image.magick("png"); 
+	image.write("result.png");
+
+	return 0;
 }
 
 int PSD::export_psd()
@@ -329,8 +353,23 @@ int PSD::export_psd()
 					filename << targetFolder;
 					filename << L"layer";
 					filename << layerName.str();
-					filename << L".tga";
-					tgaExporter::SaveRGB(filename.str().c_str(), document->width, document->height, image8);
+					switch (export_type)
+					{
+					case PNG:
+						filename << L".png";
+						Godot::print("Exporting layer to PNG");
+						pngExporter::SaveRGB(filename.str().c_str(), document->width, document->height, image8);
+						break;
+
+					case TGA:
+						filename << L".tga";
+						Godot::print("Exporting layer to TGA");
+						tgaExporter::SaveRGB(filename.str().c_str(), document->width, document->height, image8);
+						break;
+
+					default:
+						break;
+					}
 				}
 			}
 			else if (channelCount == 4u)
@@ -341,8 +380,23 @@ int PSD::export_psd()
 					filename << targetFolder;
 					filename << L"layer";
 					filename << layerName.str();
-					filename << L".tga";
-					tgaExporter::SaveRGBA(filename.str().c_str(), document->width, document->height, image8);
+					switch (export_type)
+					{
+					case PNG:
+						filename << L".png";
+						Godot::print("Exporting layer to PNG");
+						pngExporter::SaveRGBA(filename.str().c_str(), document->width, document->height, image8);
+						break;
+
+					case TGA:
+						filename << L".tga";
+						Godot::print("Exporting layer to TGA");
+						tgaExporter::SaveRGBA(filename.str().c_str(), document->width, document->height, image8);
+						break;
+
+					default:
+						break;
+					}
 				}
 			}
 
@@ -366,8 +420,23 @@ int PSD::export_psd()
 					filename << targetFolder;
 					filename << L"layer";
 					filename << layerName.str();
-					filename << L"_usermask.tga";
-					tgaExporter::SaveMonochrome(filename.str().c_str(), width, height, static_cast<const uint8_t*>(maskData));
+					switch (export_type)
+					{
+					case PNG:
+						filename << L"_usermask.png";
+						Godot::print("Exporting Layer User Mask to PNG");
+						pngExporter::SaveMonochrome(filename.str().c_str(), document->width, document->height, static_cast<const uint8_t*>(maskData));
+						break;
+
+					case TGA:
+						filename << L"_usermask.tga";
+						Godot::print("Exporting Layer User Mask to TGA");
+						tgaExporter::SaveMonochrome(filename.str().c_str(), document->width, document->height, static_cast<const uint8_t*>(maskData));
+						break;
+
+					default:
+						break;
+					}
 				}
 
 				// use ExpandMaskToCanvas create an image that is the same size as the canvas.
@@ -377,8 +446,23 @@ int PSD::export_psd()
 					filename << targetFolder;
 					filename << L"canvas";
 					filename << layerName.str();
-					filename << L"_usermask.tga";
-					tgaExporter::SaveMonochrome(filename.str().c_str(), document->width, document->height, static_cast<const uint8_t*>(maskCanvasData));
+					switch (export_type)
+					{
+					case PNG:
+						filename << L"_usermask.png";
+						Godot::print("Exporting Canvas User Mask to PNG");
+						pngExporter::SaveMonochrome(filename.str().c_str(), document->width, document->height, static_cast<const uint8_t*>(maskCanvasData));
+						break;
+
+					case TGA:
+						filename << L"_usermask.tga";
+						Godot::print("Exporting Canvas User Mask to TGA");
+						tgaExporter::SaveMonochrome(filename.str().c_str(), document->width, document->height, static_cast<const uint8_t*>(maskCanvasData));
+						break;
+
+					default:
+						break;
+					}
 				}
 
 				allocator.Free(maskCanvasData);
@@ -396,8 +480,23 @@ int PSD::export_psd()
 					filename << targetFolder;
 					filename << L"layer";
 					filename << layerName.str();
-					filename << L"_vectormask.tga";
-					tgaExporter::SaveMonochrome(filename.str().c_str(), width, height, static_cast<const uint8_t*>(maskData));
+					switch (export_type)
+					{
+					case PNG:
+						filename << L"_vectormask.png";
+						Godot::print("Exporting Vector Mask to PNG");
+						pngExporter::SaveMonochrome(filename.str().c_str(), width, height, static_cast<const uint8_t*>(maskData));
+						break;
+
+					case TGA:
+						filename << L"_vectormask.tga";
+						Godot::print("Exporting Vector Mask to TGA");
+						tgaExporter::SaveMonochrome(filename.str().c_str(), width, height, static_cast<const uint8_t*>(maskData));
+						break;
+
+					default:
+						break;
+					}
 				}
 
 				void* maskCanvasData = ExpandMaskToCanvas(document, &allocator, layer->vectorMask);
@@ -406,8 +505,23 @@ int PSD::export_psd()
 					filename << targetFolder;
 					filename << L"canvas";
 					filename << layerName.str();
-					filename << L"_vectormask.tga";
-					tgaExporter::SaveMonochrome(filename.str().c_str(), document->width, document->height, static_cast<const uint8_t*>(maskCanvasData));
+					switch (export_type)
+					{
+					case PNG:
+						filename << L"_vectormask.png";
+						Godot::print("Exporting Vector Mask to PNG");
+						pngExporter::SaveMonochrome(filename.str().c_str(), document->width, document->height, static_cast<const uint8_t*>(maskCanvasData));
+						break;
+
+					case TGA:
+						filename << L"_vectormask.tga";
+						Godot::print("Exporting Vector Mask to TGA");
+						tgaExporter::SaveMonochrome(filename.str().c_str(), document->width, document->height, static_cast<const uint8_t*>(maskCanvasData));
+						break;
+
+					default:
+						break;
+					}
 				}
 
 				allocator.Free(maskCanvasData);
@@ -419,7 +533,7 @@ int PSD::export_psd()
 
 	// extract the image data section, if available. the image data section stores the final, merged image, as well as additional
 	// alpha channels. this is only available when saving the document with "Maximize Compatibility" turned on.
-	if (document->imageDataSection.length != 0)
+	/*if (document->imageDataSection.length != 0)
 	{
 		ImageDataSection* imageData = ParseImageDataSection(document, &file, &allocator);
 		if (imageData)
@@ -494,14 +608,36 @@ int PSD::export_psd()
 			{
 				std::wstringstream filename;
 				filename << targetFolder;
-				filename << L"merged.tga";
-				if (isRgb)
+				switch (export_type)
 				{
-					tgaExporter::SaveRGB(filename.str().c_str(), document->width, document->height, image8);
-				}
-				else
-				{
-					tgaExporter::SaveRGBA(filename.str().c_str(), document->width, document->height, image8);
+				case PNG:
+					filename << L"merged.png";
+					Godot::print("Exporting Merged to PNG");
+					if (isRgb)
+					{
+						pngExporter::SaveRGB(filename.str().c_str(), document->width, document->height, image8);
+					}
+					else
+					{
+						pngExporter::SaveRGBA(filename.str().c_str(), document->width, document->height, image8);
+					}
+					break;
+
+				case TGA:
+					filename << L"merged.tga";
+					Godot::print("Exporting Merged to TGA");
+					if (isRgb)
+					{
+						tgaExporter::SaveRGB(filename.str().c_str(), document->width, document->height, image8);
+					}
+					else
+					{
+						tgaExporter::SaveRGBA(filename.str().c_str(), document->width, document->height, image8);
+					}
+					break;
+
+				default:
+					break;
 				}
 			}
 
@@ -528,9 +664,23 @@ int PSD::export_psd()
 						filename << targetFolder;
 						filename << L"extra_channel_";
 						filename << channel->asciiName.c_str();
-						filename << L".tga";
+						switch (export_type)
+						{
+						case PNG:
+							filename << L".png";
+							Godot::print("Exporting Extra Channel to PNG");
+							pngExporter::SaveRGB(filename.str().c_str(), document->width, document->height, static_cast<const uint8_t*>(imageData->images[i + skipImageCount].data));
+							break;
 
-						tgaExporter::SaveMonochrome(filename.str().c_str(), document->width, document->height, static_cast<const uint8_t*>(imageData->images[i + skipImageCount].data));
+						case TGA:
+							filename << L".tga";
+							Godot::print("Exporting Extra Channel to TGA");
+							tgaExporter::SaveMonochrome(filename.str().c_str(), document->width, document->height, static_cast<const uint8_t*>(imageData->images[i + skipImageCount].data));
+							break;
+
+						default:
+							break;
+						}
 					}
 				}
 
@@ -540,6 +690,7 @@ int PSD::export_psd()
 			DestroyImageDataSection(imageData, &allocator);
 		}
 	}
+	*/
 
 	// don't forget to destroy the document, and close the file.
 	DestroyDocument(document, &allocator);
