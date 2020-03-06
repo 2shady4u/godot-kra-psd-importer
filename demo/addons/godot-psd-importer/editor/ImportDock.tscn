@@ -58,12 +58,12 @@ scroll_horizontal_enabled = false
 
 [node name="VBoxContainer" type="VBoxContainer" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer"]
 margin_right = 1014.0
-margin_bottom = 52.0
+margin_bottom = 76.0
 size_flags_horizontal = 3
 
 [node name="GridContainer" type="GridContainer" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer"]
 margin_right = 1014.0
-margin_bottom = 52.0
+margin_bottom = 76.0
 size_flags_horizontal = 3
 columns = 2
 
@@ -120,6 +120,26 @@ margin_left = 899.0
 margin_right = 927.0
 margin_bottom = 24.0
 icon = ExtResource( 2 )
+
+[node name="ExportTypeLabel" type="Label" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer"]
+margin_top = 56.0
+margin_right = 74.0
+margin_bottom = 76.0
+size_flags_horizontal = 0
+size_flags_vertical = 1
+text = "Export Type"
+valign = 1
+
+[node name="ExportTypeButton" type="OptionButton" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer"]
+margin_left = 87.0
+margin_top = 56.0
+margin_right = 1014.0
+margin_bottom = 76.0
+text = "PNG"
+align = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="BuildVBoxContainer" type="VBoxContainer" parent="VSplitContainer"]
 margin_top = 430.0
