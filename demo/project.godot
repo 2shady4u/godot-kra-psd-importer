@@ -15,7 +15,7 @@ _global_script_class_icons={
 
 [application]
 
-config/name="PSD Demo"
+config/name="PSD Importer Demo"
 run/main_scene="res://Main.tscn"
 config/icon="res://icon.png"
 
