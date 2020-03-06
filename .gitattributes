@@ -1,6 +1,5 @@
 * linguist-vendored
 *.cpp linguist-vendored=false
-*.psd filter=lfs diff=lfs merge=lfs -text
 
 # Exclude all top-level files and directories (except addons) from zip downloads.
 # This makes installing through the AssetLib easier, because no files and folders
