@@ -17,6 +17,7 @@ namespace pngExporter
         // Create Image object and read in from pixel data above
         Magick::Image image;
         image.read(width, height, "K", MagickCore::CharPixel, data);
+        image.negateChannel(MagickCore::BlackChannel, true);
 
         // Write the image to a file.
         image.magick("png"); 
