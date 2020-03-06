@@ -13,7 +13,7 @@ enum EXPORT_TYPE {PNG, TGA}
 var _editor_file_dialog := EditorFileDialog.new()
 var _data_fields := {
 	"psd_file_path": "res://addons/godot-psd-importer/examples/Sample.psd", 
-	"target_folder_path": "res://graphics/",
+	"target_folder_path": "res://",
 	"export_type": EXPORT_TYPE.PNG
 	}
 var _is_everything_connected := false

@@ -113,7 +113,7 @@ size_flags_horizontal = 3
 margin_right = 895.0
 margin_bottom = 24.0
 size_flags_horizontal = 3
-text = "res://graphics/"
+text = "res://"
 
 [node name="TargetFolderDialogButton" type="Button" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer/TargetFolderContainer"]
 margin_left = 899.0
