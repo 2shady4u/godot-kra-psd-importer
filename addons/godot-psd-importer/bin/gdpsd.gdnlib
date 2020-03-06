@@ -7,14 +7,8 @@ reloadable=false
 
 [entry]
 
-Android.arm64-v8a="res://addons/godot-psd-importer/bin/arm64v8/libgdpsd.so"
-OSX.64="res://addons/godot-psd-importer/bin/osx/libgdpsd.dylib"
 Windows.64="res://addons/godot-psd-importer/bin/win64/lidgdpsd.dll"
-X11.64="res://addons/godot-psd-importer/bin/x11/libgdpsd.so"
 
 [dependencies]
 
-Android.arm64-v8a=[  ]
-OSX.64=[  ]
 Windows.64=[  ]
-X11.64=[  ]
