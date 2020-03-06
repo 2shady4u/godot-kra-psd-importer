@@ -8,9 +8,14 @@ tool
 extends Control
 
 enum FIELDS {PSD_FILE, TARGET_FOLDER}
+enum EXPORT_TYPE {PNG, TGA}
 
 var _editor_file_dialog := EditorFileDialog.new()
-var _data_fields := {"psd_file_path": "res://addons/godot-psd-importer/examples/Sample.psd", "target_folder_path": "res://graphics/"}
+var _data_fields := {
+	"psd_file_path": "res://addons/godot-psd-importer/examples/Sample.psd", 
+	"target_folder_path": "res://graphics/",
+	"export_type": EXPORT_TYPE.PNG
+	}
 var _is_everything_connected := false
 var _verbose_mode := true
 
@@ -24,6 +29,8 @@ onready var _psd_file_dialog_button : Button
 onready var _target_folder_line_edit : LineEdit
 onready var _target_folder_dialog_button : Button
 
+onready var _export_type_option_button : OptionButton
+
 signal exported_textures_created
 
 func _process(_delta : float):
@@ -36,8 +43,11 @@ func _process(_delta : float):
 	if not _is_everything_connected:
 		if _verbose_mode : print("Attempting to connect all necessary signals!")
 		_import_button = $VSplitContainer/BuildVBoxContainer/HBoxContainer/ImportButton
+		_import_button.connect("pressed", self, "_import_button_pressed")
 
-		var psd_file_container := $VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer/PsdFileContainer
+		var grid_container := $VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer
+
+		var psd_file_container := grid_container.get_node("PsdFileContainer")
 		_psd_file_line_edit = psd_file_container.get_node("PsdFileLineEdit")
 		_psd_file_dialog_button = psd_file_container.get_node("PsdFileDialogButton")
 
@@ -45,15 +55,20 @@ func _process(_delta : float):
 		_psd_file_line_edit.text = _data_fields.psd_file_path
 		_psd_file_dialog_button.connect("pressed", self, "_on_dialog_button_pressed", [FIELDS.PSD_FILE])
 
-		var target_folder_container := $VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer/TargetFolderContainer
+		var target_folder_container := grid_container.get_node("TargetFolderContainer")
 		_target_folder_line_edit = target_folder_container.get_node("TargetFolderLineEdit")
 		_target_folder_dialog_button = target_folder_container.find_node("TargetFolderDialogButton")
 
 		_target_folder_line_edit.connect("text_entered", self, "_on_file_or_folder_selected", [FIELDS.TARGET_FOLDER])
 		_target_folder_line_edit.text = _data_fields.target_folder_path
 		_target_folder_dialog_button.connect("pressed", self, "_on_dialog_button_pressed", [FIELDS.TARGET_FOLDER])
-	
-		_import_button.connect("pressed", self, "_import_button_pressed")
+
+		_export_type_option_button = grid_container.get_node("ExportTypeButton")
+
+		_export_type_option_button.add_item("PNG", EXPORT_TYPE.PNG)
+		_export_type_option_button.add_item("TGA", EXPORT_TYPE.TGA)
+		
+		_export_type_option_button.connect("item_selected", self, "_on_item_selected")
 	
 		add_child(_editor_file_dialog)
 
@@ -96,13 +111,18 @@ func _on_file_or_folder_selected(path: String, data_field : int):
 			if _editor_file_dialog.is_connected("dir_selected", self, "_on_file_or_folder_selected"):
 				_editor_file_dialog.disconnect("dir_selected", self, "_on_file_or_folder_selected")
 
+func _on_item_selected(id : int):
+	if _verbose_mode: print("Item selected...'{0}'".format([id]))
+	_data_fields.export_type = id
+
 func _import_button_pressed():
 	if _verbose_mode: print("Import button pressed...")
 	var psd_importer = PSDImporter.new()
 	psd_importer.psd_file_path = _data_fields.psd_file_path
 	psd_importer.target_folder_path = _data_fields.target_folder_path
+	psd_importer.export_type = _data_fields.export_type
 
 	var result : int = psd_importer.export_psd()
 	print(result)
-	
+
 	emit_signal("exported_textures_created")
