@@ -99,7 +99,7 @@ print(cpp_bindings_path)
 
 # tweak this if you want to use different folders, or more folders, to store your source code in.
 env.Append(CPPPATH=['src/'])
-sources = [Glob('src/*.cpp'), Glob('src/Samples/*.cpp'), Glob('src/Psd/*.cpp'), 'src/Psd/Psdminiz.c']
+sources = [Glob('src/*.cpp'), Glob('src/exporters/*.cpp'), Glob('src/Psd/*.cpp'), 'src/Psd/Psdminiz.c']
 
 library = env.SharedLibrary(target=env['target_path'] + env['target_name'] , source=sources)
 

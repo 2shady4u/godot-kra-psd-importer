@@ -6,17 +6,22 @@
 #include <ProjectSettings.hpp>
 #include <iostream>
 
-#include <Magick++.h>
-
 namespace godot {
 
 class PSD : public Reference {
     GODOT_CLASS(PSD, Reference)
 
+typedef enum
+{
+  PNG,
+  TGA
+} ExportType;
+
 private:
     String psd_file_path;
     String target_folder_path;
     bool verbose_mode;
+    int export_type;
 
 public:
     static void _register_methods();
