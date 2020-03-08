@@ -55,10 +55,12 @@ func _process(_delta : float):
 		_psd_file_line_edit.connect("text_entered", self, "_on_file_or_folder_selected", [FIELDS.PSD_FILE])
 		_psd_file_line_edit.text = _data_fields.psd_file_path
 		_psd_file_dialog_button.connect("pressed", self, "_on_dialog_button_pressed", [FIELDS.PSD_FILE])
+		_psd_file_dialog_button.icon = get_icon("Folder", "EditorIcons")
 
 		var target_folder_container := grid_container.get_node("TargetFolderContainer")
 		_target_folder_line_edit = target_folder_container.get_node("TargetFolderLineEdit")
 		_target_folder_dialog_button = target_folder_container.find_node("TargetFolderDialogButton")
+		_target_folder_dialog_button.icon = get_icon("Folder", "EditorIcons")
 
 		_target_folder_line_edit.connect("text_entered", self, "_on_file_or_folder_selected", [FIELDS.TARGET_FOLDER])
 		_target_folder_line_edit.text = _data_fields.target_folder_path

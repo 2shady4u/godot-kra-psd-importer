@@ -1,7 +1,6 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=2 format=2]
 
 [ext_resource path="res://addons/godot-psd-importer/editor/import_dock.gd" type="Script" id=1]
-[ext_resource path="res://addons/godot-psd-importer/editor/icons/icon_folder.svg" type="Texture" id=2]
 
 [node name="Import PSD" type="Control"]
 anchor_right = 1.0
@@ -82,16 +81,15 @@ margin_bottom = 24.0
 size_flags_horizontal = 3
 
 [node name="PsdFileLineEdit" type="LineEdit" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer/PsdFileContainer"]
-margin_right = 895.0
+margin_right = 911.0
 margin_bottom = 24.0
 size_flags_horizontal = 3
 text = "res://addons/godot-psd-importer/examples/Sample.psd"
 
 [node name="PsdFileDialogButton" type="Button" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer/PsdFileContainer"]
-margin_left = 899.0
+margin_left = 915.0
 margin_right = 927.0
 margin_bottom = 24.0
-icon = ExtResource( 2 )
 
 [node name="TargetFolderLabel" type="Label" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer"]
 margin_top = 28.0
@@ -110,16 +108,15 @@ margin_bottom = 52.0
 size_flags_horizontal = 3
 
 [node name="TargetFolderLineEdit" type="LineEdit" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer/TargetFolderContainer"]
-margin_right = 895.0
+margin_right = 911.0
 margin_bottom = 24.0
 size_flags_horizontal = 3
 text = "res://"
 
 [node name="TargetFolderDialogButton" type="Button" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer/TargetFolderContainer"]
-margin_left = 899.0
+margin_left = 915.0
 margin_right = 927.0
 margin_bottom = 24.0
-icon = ExtResource( 2 )
 
 [node name="ExportTypeLabel" type="Label" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer"]
 margin_top = 56.0
@@ -137,6 +134,8 @@ margin_right = 1014.0
 margin_bottom = 76.0
 text = "PNG"
 align = 1
+items = [ "PNG", null, false, 0, null, "TGA", null, false, 1, null ]
+selected = 0
 __meta__ = {
 "_edit_use_anchors_": false
 }
