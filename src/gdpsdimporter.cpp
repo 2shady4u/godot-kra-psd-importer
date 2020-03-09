@@ -73,14 +73,14 @@ namespace
 
 	// ---------------------------------------------------------------------------------------------------------------------
 	// ---------------------------------------------------------------------------------------------------------------------
-	static void* ExpandChannelToCanvas(const Document* document, Allocator* allocator, Layer* layer, Channel* channel, unsigned int canvasWidth, unsigned int canvasHeight)
+	static void* ExpandChannelToCanvas(const Document* document, Allocator* allocator, Layer* layer, Channel* channel)
 	{
 		if (document->bitsPerChannel == 8)
-			return ExpandChannelToCanvas<uint8_t>(allocator, layer, channel->data, canvasWidth, canvasHeight);
+			return ExpandChannelToCanvas<uint8_t>(allocator, layer, channel->data, document->width, document->height);
 		else if (document->bitsPerChannel == 16)
-			return ExpandChannelToCanvas<uint16_t>(allocator, layer, channel->data, canvasWidth, canvasHeight);
+			return ExpandChannelToCanvas<uint16_t>(allocator, layer, channel->data, document->width, document->height);
 		else if (document->bitsPerChannel == 32)
-			return ExpandChannelToCanvas<float32_t>(allocator, layer, channel->data, canvasWidth, canvasHeight);
+			return ExpandChannelToCanvas<float32_t>(allocator, layer, channel->data, document->width, document->height);
 
 		return nullptr;
 	}
@@ -297,8 +297,10 @@ bool PSDImporter::export_all_layers()
 			unsigned int layer_height = document->height;
 			if (crop_to_canvas == false)
 			{
-				layer_width = (unsigned int)layer->bottom - layer->top;
-				layer_height = (unsigned int)layer->right - layer->left;
+				layer_width = (unsigned int)(layer->bottom - layer->top);
+				std::cout << "width: " << layer_width << "\n";
+				layer_height = (unsigned int)(layer->right - layer->left);
+				std::cout << "height: " << layer_height << "\n";
 			}
 
 			// note that channel data is only as big as the layer it belongs to, e.g. it can be smaller or bigger than the canvas,
@@ -309,15 +311,31 @@ bool PSDImporter::export_all_layers()
 			if ((indexR != CHANNEL_NOT_FOUND) && (indexG != CHANNEL_NOT_FOUND) && (indexB != CHANNEL_NOT_FOUND))
 			{
 				// RGB channels were found.
-				canvasData[0] = ExpandChannelToCanvas(document, &allocator, layer, &layer->channels[indexR], layer_width, layer_height);
-				canvasData[1] = ExpandChannelToCanvas(document, &allocator, layer, &layer->channels[indexG], layer_width, layer_height);
-				canvasData[2] = ExpandChannelToCanvas(document, &allocator, layer, &layer->channels[indexB], layer_width, layer_height);
+				if (crop_to_canvas == true)
+				{
+					canvasData[0] = ExpandChannelToCanvas(document, &allocator, layer, &layer->channels[indexR]);
+					canvasData[1] = ExpandChannelToCanvas(document, &allocator, layer, &layer->channels[indexG]);
+					canvasData[2] = ExpandChannelToCanvas(document, &allocator, layer, &layer->channels[indexB]);
+				}
+				else
+				{
+					canvasData[0] = layer->channels[indexR].data;
+					canvasData[1] = layer->channels[indexG].data;
+					canvasData[2] = layer->channels[indexB].data;
+				}
 				channelCount = 3u;
 
 				if (indexA != CHANNEL_NOT_FOUND)
 				{
 					// A channel was also found.
-					canvasData[3] = ExpandChannelToCanvas(document, &allocator, layer, &layer->channels[indexA], layer_width, layer_height);
+					if (crop_to_canvas == true)
+					{
+						canvasData[3] = ExpandChannelToCanvas(document, &allocator, layer, &layer->channels[indexA]);
+					}
+					else
+					{
+						canvasData[3] = layer->channels[indexA].data;
+					}
 					channelCount = 4u;
 				}
 			}
@@ -358,10 +376,14 @@ bool PSDImporter::export_all_layers()
 				}
 			}
 
-			allocator.Free(canvasData[0]);
-			allocator.Free(canvasData[1]);
-			allocator.Free(canvasData[2]);
-			allocator.Free(canvasData[3]);
+			// ONLY free canvasData if the channel was actually copied! Otherwise the channel data is already deleted here!
+			if (crop_to_canvas == true)
+			{
+				allocator.Free(canvasData[0]);
+				allocator.Free(canvasData[1]);
+				allocator.Free(canvasData[2]);
+				allocator.Free(canvasData[3]);
+			}
 
 			// get the layer name.
 			// Unicode data is preferred because it is not truncated by Photoshop, but unfortunately it is optional.
