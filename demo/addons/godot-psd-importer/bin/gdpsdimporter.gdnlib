@@ -1,0 +1,14 @@
+[general]
+
+singleton=false
+load_once=true
+symbol_prefix="godot_"
+reloadable=false
+
+[entry]
+
+Windows.64="res://addons/godot-psd-importer/bin/win64/lidgdpsdimporter.dll"
+
+[dependencies]
+
+Windows.64=[  ]

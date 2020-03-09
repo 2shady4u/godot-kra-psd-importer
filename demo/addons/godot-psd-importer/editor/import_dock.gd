@@ -8,6 +8,8 @@
 tool
 extends Control
 
+const NO_ERROR_TEXT := "No errors..." 
+
 enum FIELDS {PSD_FILE, TARGET_FOLDER}
 enum EXPORT_TYPE {PNG, TGA}
 
@@ -15,12 +17,13 @@ var _editor_file_dialog := EditorFileDialog.new()
 var _data_fields := {
 	"psd_file_path": "res://addons/godot-psd-importer/examples/Sample.psd", 
 	"target_folder_path": "res://",
-	"export_type": EXPORT_TYPE.PNG
+	"export_type": EXPORT_TYPE.PNG,
+	"crop_to_canvas": true
 	}
 var _is_everything_connected := false
 var _verbose_mode := true
 
-const PSDImporter := preload("res://addons/godot-psd-importer/bin/gdpsd.gdns")
+const PSDImporter := preload("res://addons/godot-psd-importer/bin/gdpsdimporter.gdns")
 
 onready var _import_button : Button
 
@@ -29,6 +32,10 @@ onready var _psd_file_dialog_button : Button
 
 onready var _target_folder_line_edit : LineEdit
 onready var _target_folder_dialog_button : Button
+
+onready var _crop_check_box : CheckBox
+
+onready var _error_label : Label
 
 onready var _export_type_option_button : OptionButton
 
@@ -67,12 +74,16 @@ func _process(_delta : float):
 		_target_folder_dialog_button.connect("pressed", self, "_on_dialog_button_pressed", [FIELDS.TARGET_FOLDER])
 
 		_export_type_option_button = grid_container.get_node("ExportTypeButton")
-
-		_export_type_option_button.add_item("PNG", EXPORT_TYPE.PNG)
-		_export_type_option_button.add_item("TGA", EXPORT_TYPE.TGA)
-		
 		_export_type_option_button.connect("item_selected", self, "_on_item_selected")
-	
+
+		_crop_check_box = grid_container.get_node("CropCheckBox")
+		_crop_check_box.pressed = _data_fields.crop_to_canvas
+		_crop_check_box.connect("toggled", self, "_on_crop_check_box_toggled")
+
+		_error_label = $VSplitContainer/MainVBoxContainer/ErrorLabel
+		_error_label.text = NO_ERROR_TEXT
+		_error_label.set("custom_colors/font_color", Color.green)
+
 		add_child(_editor_file_dialog)
 
 		_is_everything_connected = true
@@ -118,14 +129,40 @@ func _on_item_selected(id : int):
 	if _verbose_mode: print("Item selected...'{0}'".format([id]))
 	_data_fields.export_type = id
 
+func _on_crop_check_box_toggled(button_pressed : bool):
+	if _verbose_mode: print("CheckBox state toggled...'{0}'".format([button_pressed]))
+	_data_fields.crop_to_canvas = button_pressed
+
 func _import_button_pressed():
 	if _verbose_mode: print("Import button pressed...")
+	
+	_error_label.text = "Importing... please wait!"
+	_error_label.set("custom_colors/font_color", Color.white)
+	_error_label.update()
+	
+	yield(get_tree(), "idle_frame")
+	yield(VisualServer, "frame_post_draw")
+	
 	var psd_importer = PSDImporter.new()
 	psd_importer.psd_file_path = _data_fields.psd_file_path
 	psd_importer.target_folder_path = _data_fields.target_folder_path
 	psd_importer.export_type = _data_fields.export_type
+	psd_importer.crop_to_canvas = _data_fields.crop_to_canvas
+	psd_importer.verbose_mode = _verbose_mode
 
-	var result : int = psd_importer.export_psd()
-	print(result)
+	psd_importer.connect("texture_created", self, "_on_texture_created")
+
+	var result : bool = psd_importer.export_all_layers()
+	if not result:
+		_error_label.text = psd_importer.error_message
+		_error_label.set("custom_colors/font_color", Color.red)
+	else:
+		_error_label.text = NO_ERROR_TEXT
+		_error_label.set("custom_colors/font_color", Color.green)
+	_error_label.update()
 
 	emit_signal("exported_textures_created")
+
+func _on_texture_created(texture_path : String):
+	print("TEXTURE CREATED: "+ texture_path)
+	pass
