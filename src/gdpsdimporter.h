@@ -22,8 +22,10 @@ private:
     String psd_file_path;
     String target_folder_path;
     String error_message;
+
     bool verbose_mode;
     bool crop_to_canvas;
+
     int export_type;
 
 public:

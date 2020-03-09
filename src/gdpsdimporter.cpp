@@ -73,14 +73,14 @@ namespace
 
 	// ---------------------------------------------------------------------------------------------------------------------
 	// ---------------------------------------------------------------------------------------------------------------------
-	static void* ExpandChannelToCanvas(const Document* document, Allocator* allocator, Layer* layer, Channel* channel)
+	static void* ExpandChannelToCanvas(const Document* document, Allocator* allocator, Layer* layer, Channel* channel, unsigned int canvasWidth, unsigned int canvasHeight)
 	{
 		if (document->bitsPerChannel == 8)
-			return ExpandChannelToCanvas<uint8_t>(allocator, layer, channel->data, document->width, document->height);
+			return ExpandChannelToCanvas<uint8_t>(allocator, layer, channel->data, canvasWidth, canvasHeight);
 		else if (document->bitsPerChannel == 16)
-			return ExpandChannelToCanvas<uint16_t>(allocator, layer, channel->data, document->width, document->height);
+			return ExpandChannelToCanvas<uint16_t>(allocator, layer, channel->data, canvasWidth, canvasHeight);
 		else if (document->bitsPerChannel == 32)
-			return ExpandChannelToCanvas<float32_t>(allocator, layer, channel->data, document->width, document->height);
+			return ExpandChannelToCanvas<float32_t>(allocator, layer, channel->data, canvasWidth, canvasHeight);
 
 		return nullptr;
 	}
@@ -309,31 +309,15 @@ bool PSDImporter::export_all_layers()
 			if ((indexR != CHANNEL_NOT_FOUND) && (indexG != CHANNEL_NOT_FOUND) && (indexB != CHANNEL_NOT_FOUND))
 			{
 				// RGB channels were found.
-				if (crop_to_canvas == true)
-				{
-					canvasData[0] = ExpandChannelToCanvas(document, &allocator, layer, &layer->channels[indexR]);
-					canvasData[1] = ExpandChannelToCanvas(document, &allocator, layer, &layer->channels[indexG]);
-					canvasData[2] = ExpandChannelToCanvas(document, &allocator, layer, &layer->channels[indexB]);
-				}
-				else
-				{
-					canvasData[0] = layer->channels[indexR].data;
-					canvasData[1] = layer->channels[indexG].data;
-					canvasData[2] = layer->channels[indexB].data;
-				}
+				canvasData[0] = ExpandChannelToCanvas(document, &allocator, layer, &layer->channels[indexR], layer_width, layer_height);
+				canvasData[1] = ExpandChannelToCanvas(document, &allocator, layer, &layer->channels[indexG], layer_width, layer_height);
+				canvasData[2] = ExpandChannelToCanvas(document, &allocator, layer, &layer->channels[indexB], layer_width, layer_height);
 				channelCount = 3u;
 
 				if (indexA != CHANNEL_NOT_FOUND)
 				{
 					// A channel was also found.
-					if (crop_to_canvas == true)
-					{
-						canvasData[3] = ExpandChannelToCanvas(document, &allocator, layer, &layer->channels[indexA]);
-					}
-					else
-					{
-						canvasData[3] = layer->channels[indexA].data;
-					}
+					canvasData[3] = ExpandChannelToCanvas(document, &allocator, layer, &layer->channels[indexA], layer_width, layer_height);
 					channelCount = 4u;
 				}
 			}
