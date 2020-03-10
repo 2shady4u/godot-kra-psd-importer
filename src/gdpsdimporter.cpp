@@ -36,10 +36,6 @@
 #include "exporters/PsdTgaExporter.h"
 #include "exporters/PsdPngExporter.h"
 
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
-
 PSD_PUSH_WARNING_LEVEL(0)
 	// disable annoying warning caused by xlocale(337): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
 	#pragma warning(disable:4530)
@@ -183,28 +179,18 @@ void PSDImporter::_init()
 {
 	verbose_mode = false;
 
+	// Verify if the environment variable 'MAGICK_CODER_MODULE_PATH' is set.
 	String var = "MAGICK_CODER_MODULE_PATH";
-	String value = "res://addons/godot-psd-importer/bin/win64";
-	value = ProjectSettings::get_singleton()->globalize_path(value);
-	value = value.replace("/", "\\");
-	String statement = var + "=" + value;
-
-	Godot::print(statement);
-
-	if(_putenv(statement.alloc_c_string()) != 0)
+	char *value = getenv(var.alloc_c_string());
+	if(value)
 	{
-		Godot::print("GDPSDImporter Error: Failed to set " + var + " to correct path! PNG exporting is prone to crash!");
-	}
-
-	char *new_value = getenv(var.alloc_c_string());
-	if(new_value)
-	{
-		Godot::print("Correctly set environment variable " + var + " to path '" + new_value + "'");
+		Godot::print("Environment variable " + var + " points to path '" + value + "'");
 	}
 	else
 	{
-		Godot::print("GDPSDImporter Error: Failed to set " + var + " to correct path! PNG exporting is prone to crash!");
+		Godot::print("GDPSDImporter warning: Environment variable " + var + " is not set in the system registery! (Ignore warning if ImageMagick is installed)");
 	}
+
 }
 
 int PSDImporter::test()
@@ -439,7 +425,19 @@ bool PSDImporter::export_all_layers()
 						}
 						catch(const std::exception& e)
 						{
+							// Verify the environment variable 'MAGICK_CODER_MODULE_PATH'.
+							String var = "MAGICK_CODER_MODULE_PATH";
+							char *value = getenv(var.alloc_c_string());
+							if(!value)
+							{
+								error_message = var + " is missing!";
+							}
+							else
+							{
+								error_message = "Unknown error (check console)";
+							}
 							Godot::print("GDPSDImporter Error (ImageMagick):" + String(e.what()));
+							return false;
 						}
 						break;
 
@@ -474,7 +472,19 @@ bool PSDImporter::export_all_layers()
 						}
 						catch(const std::exception& e)
 						{
+							// Verify the environment variable 'MAGICK_CODER_MODULE_PATH'.
+							String var = "MAGICK_CODER_MODULE_PATH";
+							char *value = getenv(var.alloc_c_string());
+							if(!value)
+							{
+								error_message = var + " is missing!";
+							}
+							else
+							{
+								error_message = "Unknown error (check console)";
+							}
 							Godot::print("GDPSDImporter Error (ImageMagick):" + String(e.what()));
+							return false;
 						}
 						break;
 					case TGA:
