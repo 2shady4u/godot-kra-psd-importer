@@ -36,6 +36,10 @@
 #include "exporters/PsdTgaExporter.h"
 #include "exporters/PsdPngExporter.h"
 
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <string.h>
+
 PSD_PUSH_WARNING_LEVEL(0)
 	// disable annoying warning caused by xlocale(337): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
 	#pragma warning(disable:4530)
@@ -183,6 +187,35 @@ PSDImporter::~PSDImporter()
 void PSDImporter::_init()
 {
 	verbose_mode = false;
+
+	String var = "MAGICK_CODER_MODULE_PATH";
+	String value = "C:\\Users\\piet.bronders\\Documents\\Repositories\\GloomInc\\godot-psd-importer\\demo\\addons\\godot-psd-importer\\bin\\win64";
+	String statement = var + "=" + value;
+
+	char *current_value = getenv(var.alloc_c_string());
+	if (current_value)
+	{
+		Godot::print("Variable " + var + " currently has value " + String(current_value));
+	}
+	else
+	{
+		Godot::print("Variable " + var + " currently has no value.");
+	}
+
+	if(_putenv(statement.alloc_c_string()) != 0)
+	{
+		Godot::print("FAILURE!");
+		return;
+	}
+	char *new_value = getenv(var.alloc_c_string());
+	if(new_value)
+	{
+		Godot::print("New value of variable " + var + " is " + String(new_value));
+	}
+	else
+	{
+		Godot::print("New value of variable " + var + " is NULL???");
+	}
 }
 
 int PSDImporter::test()
@@ -441,7 +474,14 @@ bool PSDImporter::export_all_layers()
 					case PNG:
 						filename << L".png";
 						Godot::print(">> Exporting RGBA layer '" + String(layerName.str().c_str()) + "' to PNG ('" + String(filename.str().c_str()) + "')");
-						pngExporter::SaveRGBA(filename.str().c_str(), layer_width, layer_height, image8);
+						try
+						{
+							pngExporter::SaveRGBA(filename.str().c_str(), layer_width, layer_height, image8);
+						}
+						catch(const std::exception& e)
+						{
+							Godot::print("GDPSDImporter Error (ImageMagick):" + String(e.what()));
+						}
 						break;
 					case TGA:
 						filename << L".tga";
