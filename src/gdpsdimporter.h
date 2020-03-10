@@ -5,7 +5,6 @@
 #include <Reference.hpp>
 #include <Directory.hpp>
 #include <ProjectSettings.hpp>
-#include <iostream>
 
 namespace godot {
 

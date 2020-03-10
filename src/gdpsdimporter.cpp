@@ -64,11 +64,6 @@ namespace
 		T* canvasData = static_cast<T*>(allocator->Allocate(sizeof(T)*canvasWidth*canvasHeight, 16u));
 		memset(canvasData, 0u, sizeof(T)*canvasWidth*canvasHeight);
 
-		std::cout << "left: " << layer->left << "\n";
-		std::cout << "top: " << layer->top << "\n";
-		std::cout << "right: " << layer->right << "\n";
-		std::cout << "bottom: " << layer->bottom << "\n";
-
 		imageUtil::CopyLayerData(static_cast<const T*>(data), canvasData, layer->left, layer->top, layer->right, layer->bottom, canvasWidth, canvasHeight);
 
 		return canvasData;
@@ -173,7 +168,7 @@ void PSDImporter::_register_methods()
 
 	register_property<PSDImporter, int>("export_type", &PSDImporter::export_type, ExportType::PNG);
 
-	register_signal<PSDImporter>("texture_created", "texture_path", GODOT_VARIANT_TYPE_STRING);
+	register_signal<PSDImporter>("texture_created", "texture_path", GODOT_VARIANT_TYPE_STRING, "position", GODOT_VARIANT_TYPE_VECTOR2);
 }
 
 PSDImporter::PSDImporter()
@@ -189,32 +184,23 @@ void PSDImporter::_init()
 	verbose_mode = false;
 
 	String var = "MAGICK_CODER_MODULE_PATH";
-	String value = "C:\\Users\\piet.bronders\\Documents\\Repositories\\GloomInc\\godot-psd-importer\\demo\\addons\\godot-psd-importer\\bin\\win64";
+	String value = "res://addons/godot-psd-importer/bin/win64";
+	value = ProjectSettings::get_singleton()->globalize_path(value);
 	String statement = var + "=" + value;
-
-	char *current_value = getenv(var.alloc_c_string());
-	if (current_value)
-	{
-		Godot::print("Variable " + var + " currently has value " + String(current_value));
-	}
-	else
-	{
-		Godot::print("Variable " + var + " currently has no value.");
-	}
 
 	if(_putenv(statement.alloc_c_string()) != 0)
 	{
-		Godot::print("FAILURE!");
-		return;
+		Godot::print("GDPSDImporter Error: Failed to set " + var + " to correct path! PNG exporting is prone to crash!");
 	}
+
 	char *new_value = getenv(var.alloc_c_string());
 	if(new_value)
 	{
-		Godot::print("New value of variable " + var + " is " + String(new_value));
+		Godot::print("Correctly set environment variable " + var + " to path '" + value + "'");
 	}
 	else
 	{
-		Godot::print("New value of variable " + var + " is NULL???");
+		Godot::print("GDPSDImporter Error: Failed to set " + var + " to correct path! PNG exporting is prone to crash!");
 	}
 }
 
@@ -331,9 +317,7 @@ bool PSDImporter::export_all_layers()
 			if (crop_to_canvas == false)
 			{
 				layer_width = (unsigned int)(layer->bottom - layer->top);
-				std::cout << "width: " << layer_width << "\n";
 				layer_height = (unsigned int)(layer->right - layer->left);
-				std::cout << "height: " << layer_height << "\n";
 			}
 
 			// note that channel data is only as big as the layer it belongs to, e.g. it can be smaller or bigger than the canvas,
@@ -446,7 +430,14 @@ bool PSDImporter::export_all_layers()
 					case PNG:
 						filename << L".png";
 						Godot::print(">> Exporting RGB layer '" + String(layerName.str().c_str()) + "' to PNG ('" + String(filename.str().c_str()) + "')");
-						pngExporter::SaveRGB(filename.str().c_str(), layer_width, layer_height, image8);
+						try
+						{
+							pngExporter::SaveRGB(filename.str().c_str(), layer_width, layer_height, image8);
+						}
+						catch(const std::exception& e)
+						{
+							Godot::print("GDPSDImporter Error (ImageMagick):" + String(e.what()));
+						}
 						break;
 
 					case TGA:
@@ -459,7 +450,7 @@ bool PSDImporter::export_all_layers()
 						break;
 					}
 					std::wstring dummy = filename.str();
-					emit_signal("texture_created", String(dummy.c_str()));
+					emit_signal("texture_created", String(dummy.c_str()), Vector2(layer->left ,layer->top));
 				}
 			}
 			else if (channelCount == 4u)
@@ -493,7 +484,7 @@ bool PSDImporter::export_all_layers()
 						break;
 					}
 					std::wstring dummy = filename.str();
-					emit_signal("texture_created", String(dummy.c_str()));
+					emit_signal("texture_created", String(dummy.c_str()), Vector2(layer->left ,layer->top));
 				}
 			}
 

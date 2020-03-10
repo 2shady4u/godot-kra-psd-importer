@@ -163,6 +163,6 @@ func _import_button_pressed():
 
 	emit_signal("exported_textures_created")
 
-func _on_texture_created(texture_path : String):
-	print("TEXTURE CREATED: "+ texture_path)
+func _on_texture_created(texture_path : String, texture_position : Vector2):
+	print("Texture created by importer, with path '{0}' and position [{1}, {2}]".format([texture_path, texture_position[0], texture_position[1]]))
 	pass
