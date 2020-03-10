@@ -186,7 +186,10 @@ void PSDImporter::_init()
 	String var = "MAGICK_CODER_MODULE_PATH";
 	String value = "res://addons/godot-psd-importer/bin/win64";
 	value = ProjectSettings::get_singleton()->globalize_path(value);
+	value = value.replace("/", "\\");
 	String statement = var + "=" + value;
+
+	Godot::print(statement);
 
 	if(_putenv(statement.alloc_c_string()) != 0)
 	{
@@ -196,7 +199,7 @@ void PSDImporter::_init()
 	char *new_value = getenv(var.alloc_c_string());
 	if(new_value)
 	{
-		Godot::print("Correctly set environment variable " + var + " to path '" + value + "'");
+		Godot::print("Correctly set environment variable " + var + " to path '" + new_value + "'");
 	}
 	else
 	{
