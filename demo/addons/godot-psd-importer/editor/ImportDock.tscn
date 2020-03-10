@@ -1,7 +1,21 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://addons/godot-psd-importer/editor/import_dock.gd" type="Script" id=1]
-[ext_resource path="res://addons/godot-psd-importer/editor/icons/icon_folder.svg" type="Texture" id=2]
+
+[sub_resource type="Image" id=1]
+data = {
+"data": PoolByteArray( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ),
+"format": "LumAlpha8",
+"height": 16,
+"mipmaps": false,
+"width": 16
+}
+
+[sub_resource type="ImageTexture" id=2]
+flags = 4
+flags = 4
+image = SubResource( 1 )
+size = Vector2( 16, 16 )
 
 [node name="Import PSD" type="Control"]
 anchor_right = 1.0
@@ -21,7 +35,7 @@ __meta__ = {
 
 [node name="MainVBoxContainer" type="VBoxContainer" parent="VSplitContainer"]
 margin_right = 1024.0
-margin_bottom = 418.0
+margin_bottom = 436.0
 __meta__ = {
 "__editor_plugin_screen__": "2D"
 }
@@ -58,12 +72,12 @@ scroll_horizontal_enabled = false
 
 [node name="VBoxContainer" type="VBoxContainer" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer"]
 margin_right = 1014.0
-margin_bottom = 76.0
+margin_bottom = 104.0
 size_flags_horizontal = 3
 
 [node name="GridContainer" type="GridContainer" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer"]
 margin_right = 1014.0
-margin_bottom = 76.0
+margin_bottom = 104.0
 size_flags_horizontal = 3
 columns = 2
 
@@ -76,22 +90,23 @@ text = "PSD File"
 valign = 1
 
 [node name="PsdFileContainer" type="HBoxContainer" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer"]
-margin_left = 87.0
+margin_left = 143.0
 margin_right = 1014.0
 margin_bottom = 24.0
 size_flags_horizontal = 3
 
 [node name="PsdFileLineEdit" type="LineEdit" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer/PsdFileContainer"]
-margin_right = 895.0
+margin_right = 839.0
 margin_bottom = 24.0
 size_flags_horizontal = 3
 text = "res://addons/godot-psd-importer/examples/Sample.psd"
+editable = false
 
 [node name="PsdFileDialogButton" type="Button" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer/PsdFileContainer"]
-margin_left = 899.0
-margin_right = 927.0
+margin_left = 843.0
+margin_right = 871.0
 margin_bottom = 24.0
-icon = ExtResource( 2 )
+icon = SubResource( 2 )
 
 [node name="TargetFolderLabel" type="Label" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer"]
 margin_top = 28.0
@@ -103,23 +118,24 @@ text = "Target Folder"
 valign = 1
 
 [node name="TargetFolderContainer" type="HBoxContainer" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer"]
-margin_left = 87.0
+margin_left = 143.0
 margin_top = 28.0
 margin_right = 1014.0
 margin_bottom = 52.0
 size_flags_horizontal = 3
 
 [node name="TargetFolderLineEdit" type="LineEdit" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer/TargetFolderContainer"]
-margin_right = 895.0
+margin_right = 839.0
 margin_bottom = 24.0
 size_flags_horizontal = 3
 text = "res://"
+editable = false
 
 [node name="TargetFolderDialogButton" type="Button" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer/TargetFolderContainer"]
-margin_left = 899.0
-margin_right = 927.0
+margin_left = 843.0
+margin_right = 871.0
 margin_bottom = 24.0
-icon = ExtResource( 2 )
+icon = SubResource( 2 )
 
 [node name="ExportTypeLabel" type="Label" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer"]
 margin_top = 56.0
@@ -131,18 +147,51 @@ text = "Export Type"
 valign = 1
 
 [node name="ExportTypeButton" type="OptionButton" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer"]
-margin_left = 87.0
+margin_left = 143.0
 margin_top = 56.0
 margin_right = 1014.0
 margin_bottom = 76.0
 text = "PNG"
 align = 1
+items = [ "PNG", null, false, 0, null, "TGA", null, false, 1, null ]
+selected = 0
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="CropLabel" type="Label" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer"]
+margin_top = 80.0
+margin_right = 139.0
+margin_bottom = 104.0
+size_flags_horizontal = 0
+size_flags_vertical = 1
+text = "Crop Layers to Canvas"
+valign = 1
+
+[node name="CropCheckBox" type="CheckBox" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer"]
+margin_left = 566.0
+margin_top = 80.0
+margin_right = 590.0
+margin_bottom = 104.0
+size_flags_horizontal = 4
+pressed = true
+align = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ErrorLabel" type="Label" parent="VSplitContainer/MainVBoxContainer"]
+margin_top = 422.0
+margin_right = 1024.0
+margin_bottom = 436.0
+size_flags_horizontal = 3
+custom_colors/font_color = Color( 0, 1, 0, 1 )
+text = "No errors..."
+align = 1
+valign = 1
+
 [node name="BuildVBoxContainer" type="VBoxContainer" parent="VSplitContainer"]
-margin_top = 430.0
+margin_top = 448.0
 margin_right = 1024.0
 margin_bottom = 600.0
 __meta__ = {

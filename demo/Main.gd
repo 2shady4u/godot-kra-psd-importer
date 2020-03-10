@@ -1,6 +1,6 @@
 extends Node2D
 
-const PSDImporter := preload("res://addons/godot-psd-importer/bin/gdpsd.gdns")
+const PSDImporter := preload("res://addons/godot-psd-importer/bin/gdpsdimporter.gdns")
 
 var psd_importer
 
