@@ -34,6 +34,11 @@ This is an unfortunate constraint of the [PSD Library SDK](https://molecular-mat
 
 Re-building Godot from scratch is **NOT** required, the proper way of installing this plugin is to either install it through the Asset Library or to just manually download the build files yourself.
 
+Additionally, either setting the environment variable **MAGICK_CODER_MODULE_PATH** in the system registry (recommended way) or an installation of ImageMagick is required to be able to export to the PNG-format.  
+The variable should be pointed to the following path:
+
+`MAGICK_CODER_MODULE_PATH = <path-to-godot-project>\addons\godot-psd-importer\bin\win64`
+
 ### Godot Asset Library
 
 **Godot-PSD-Importer** is available through the official Godot Asset Library, and can be installed in the following way:
@@ -71,6 +76,10 @@ Folder to which the exported layers of the **.psd*-file, as given by 'PSD File',
 
 Image format to which the exported layers of the **.psd*-file will be converted.
 
+- **Crop Layers to Canvas** (Bool, default=true)
+
+Crop all layers of the **.psd*-file to the size of the canvas, making them the exact same size and removing any content that spills out of the canvas. Alternatively, the canvas size is ignored and the layer sizes are respected, resulting in exported images with possibly different sizes.
+
 After setting these fields correctly, the 'import'-button can be used to start the importing process.
 
 # <a name="credits">Credits</a>
@@ -82,6 +91,8 @@ For enabling PNG exporting functionalities, the [ImageMagick](https://imagemagic
 # <a name="blatant-self-advertisement">Blatant Self-Advertisement</a>
 
 This plugin was made by Gamechuck and is actively used during development of [Trip the Ark Fantastic](https://www.tripthearkfantastic.com/), a colourful game about societal and scientific themes set in the fabled Animal Kingdom. Be sure to check it out!
+
+[![Trip the Ark Fantastic Banner](readme/ark_fantastic_presskit_header.png?raw=true "Trip the Ark Fantastic Banner")](https://www.tripthearkfantastic.com/)
 
 # <a name="roadmap">Advanced instructions</a>
 
@@ -105,13 +116,17 @@ Folder to which the exported layers of the **.psd*-file, as given by psd_file_pa
 
 Image format to which the layers of **.psd*-file will be exported. Both PNG and TGA formats are available.
 
+- **crop_to_canvas** (Boolean, default=true)
+
+Either crop the layers to the canvas or ignore the canvas size entirely and respect the layer sizes.
+
 - **verbose_mode** (Boolean, default=false)
 
 Setting verbose_mode on True results in an information dump in the Godot console that is handy for debugging purposes.
 
 ## Functions
 
-- Boolean success = **export_psd()**
+- Boolean success = **export_all_layers()**
 
 Exports the layers of a **.psd*-file, as given by psd_file_path, to a target folder, as given by target_folder_path. Exported image format is either PNG or TGA as given by the export_type variable.
 
