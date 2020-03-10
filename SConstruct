@@ -12,12 +12,12 @@ opts.Add(EnumVariable('platform', "Compilation platform", '', ['', 'windows', 'x
 opts.Add(EnumVariable('p', "Compilation target, alias for 'platform'", '', ['', 'windows', 'x11', 'linux', 'osx']))
 opts.Add(BoolVariable('use_llvm', "Use the LLVM / Clang compiler", 'no'))
 opts.Add(PathVariable('target_path', 'The path where the lib is installed.', 'demo/addons/godot-psd-importer/bin/'))
-opts.Add(PathVariable('target_name', 'The library name.', 'lidgdpsd', PathVariable.PathAccept))
+opts.Add(PathVariable('target_name', 'The library name.', 'lidgdpsdimporter', PathVariable.PathAccept))
 
 # Local dependency paths, adapt them to your setup
 godot_headers_path = "godot-cpp/godot_headers/"
 cpp_bindings_path = "godot-cpp/"
-magick_bindings_path = 'C:/Program Files/ImageMagick-7.0.9-Q16/'
+magick_bindings_path = 'C:/Program Files/ImageMagick-7.0.10-Q16/'
 cpp_library = "libgodot-cpp"
 
 # only support 64 at this time..
