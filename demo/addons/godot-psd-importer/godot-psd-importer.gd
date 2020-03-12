@@ -12,7 +12,7 @@ var dock = null
 
 func _enter_tree():
 	dock = preload("res://addons/godot-psd-importer/editor/ImportDock.tscn").instance()
-	dock.connect("exported_textures_created", self, "_on_exported_textures_created")
+	dock.editor_plugin = self
 	add_control_to_dock(DOCK_SLOT_LEFT_UR, dock)
 
 func _exit_tree():
@@ -21,5 +21,9 @@ func _exit_tree():
 	# Remove the node
 	dock.free()
 
-func _on_exported_textures_created():
-	self.get_editor_interface().get_resource_filesystem().scan_sources()
+func scan_sources() -> void:
+	get_editor_interface().get_resource_filesystem().scan_sources()
+	yield(get_editor_interface().get_resource_filesystem(), "sources_changed")
+
+func open_scene_from_path(layer_structure_path : String) -> void:
+	get_editor_interface().open_scene_from_path(layer_structure_path)

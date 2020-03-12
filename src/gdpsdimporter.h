@@ -5,6 +5,7 @@
 #include <Reference.hpp>
 #include <Directory.hpp>
 #include <ProjectSettings.hpp>
+#include <Magick++.h>
 
 namespace godot {
 
@@ -13,19 +14,29 @@ class PSDImporter : public Reference {
 
 typedef enum
 {
-  PNG,
-  TGA
-} ExportType;
+    PNG,
+    TGA
+} EXPORT_TYPE;
+
+typedef enum
+{
+    MONOCHROME,
+    RGB,
+    RGBA
+} CHANNEL_TYPE;
 
 private:
-    String psd_file_path;
-    String target_folder_path;
-    String error_message;
+    String psdFilePath;
+    String targetFolderPath;
+    String errorMessage;
 
-    bool verbose_mode;
-    bool crop_to_canvas;
+    bool verboseMode;
+    bool cropToCanvas;
 
-    int export_type;
+    int exportType;
+    int channelType;
+
+    float resizeFactor;
 
 public:
     static void _register_methods();
@@ -35,7 +46,8 @@ public:
 
     void _init();
 
-    bool export_all_layers();
+    bool exportAllLayers();
+    bool SaveTexture(const wchar_t* filename, unsigned int width, unsigned int height, const uint8_t* data);
     int test();
 };
 

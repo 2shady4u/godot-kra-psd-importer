@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://addons/godot-psd-importer/editor/import_dock.gd" type="Script" id=1]
+[ext_resource path="res://addons/godot-psd-importer/editor/packed_scene_creator.gd" type="Script" id=2]
 
-[sub_resource type="Image" id=1]
+[sub_resource type="Image" id=3]
 data = {
 "data": PoolByteArray( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ),
 "format": "LumAlpha8",
@@ -14,7 +15,7 @@ data = {
 [sub_resource type="ImageTexture" id=2]
 flags = 4
 flags = 4
-image = SubResource( 1 )
+image = SubResource( 3 )
 size = Vector2( 16, 16 )
 
 [node name="Import PSD" type="Control"]
@@ -24,6 +25,9 @@ script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="PackedSceneCreator" type="Node" parent="."]
+script = ExtResource( 2 )
 
 [node name="VSplitContainer" type="VSplitContainer" parent="."]
 anchor_right = 1.0
@@ -72,12 +76,12 @@ scroll_horizontal_enabled = false
 
 [node name="VBoxContainer" type="VBoxContainer" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer"]
 margin_right = 1014.0
-margin_bottom = 104.0
+margin_bottom = 160.0
 size_flags_horizontal = 3
 
 [node name="GridContainer" type="GridContainer" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer"]
 margin_right = 1014.0
-margin_bottom = 104.0
+margin_bottom = 160.0
 size_flags_horizontal = 3
 columns = 2
 
@@ -180,6 +184,65 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="ResizeLabel" type="Label" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer"]
+margin_top = 108.0
+margin_right = 85.0
+margin_bottom = 132.0
+size_flags_horizontal = 0
+size_flags_vertical = 1
+text = "Resize Factor"
+valign = 1
+
+[node name="ResizeContainer" type="HBoxContainer" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer"]
+margin_left = 143.0
+margin_top = 108.0
+margin_right = 1014.0
+margin_bottom = 132.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ResizeHSlider" type="HSlider" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer/ResizeContainer"]
+margin_top = 4.0
+margin_right = 809.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = 0.1
+max_value = 10.0
+step = 0.1
+value = 0.1
+
+[node name="ResizeLineEdit" type="LineEdit" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer/ResizeContainer"]
+margin_left = 813.0
+margin_right = 871.0
+margin_bottom = 24.0
+text = "1"
+align = 1
+editable = false
+
+[node name="MirrorStructureLabel" type="Label" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer"]
+margin_top = 136.0
+margin_right = 94.0
+margin_bottom = 160.0
+size_flags_horizontal = 0
+size_flags_vertical = 1
+text = "Mirror Settings"
+align = 1
+valign = 1
+
+[node name="MirrorStructureCheckBox" type="CheckBox" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer"]
+margin_left = 566.0
+margin_top = 136.0
+margin_right = 590.0
+margin_bottom = 160.0
+size_flags_horizontal = 4
+pressed = true
+align = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
 [node name="ErrorLabel" type="Label" parent="VSplitContainer/MainVBoxContainer"]
 margin_top = 422.0
 margin_right = 1024.0
@@ -193,7 +256,7 @@ valign = 1
 [node name="BuildVBoxContainer" type="VBoxContainer" parent="VSplitContainer"]
 margin_top = 448.0
 margin_right = 1024.0
-margin_bottom = 600.0
+margin_bottom = 1024.0
 __meta__ = {
 "__editor_plugin_screen__": "2D"
 }

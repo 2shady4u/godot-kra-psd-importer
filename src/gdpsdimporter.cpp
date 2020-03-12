@@ -33,9 +33,6 @@
 #include "Psd/PsdExport.h"
 #include "Psd/PsdExportDocument.h"
 
-#include "exporters/PsdTgaExporter.h"
-#include "exporters/PsdPngExporter.h"
-
 PSD_PUSH_WARNING_LEVEL(0)
 	// disable annoying warning caused by xlocale(337): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
 	#pragma warning(disable:4530)
@@ -152,19 +149,20 @@ using namespace godot;
 void PSDImporter::_register_methods()
 {
 
-    register_method("export_all_layers", &PSDImporter::export_all_layers);
+    register_method("export_all_layers", &PSDImporter::exportAllLayers);
 	register_method("test", &PSDImporter::test);
 
-    register_property<PSDImporter, String>("psd_file_path", &PSDImporter::psd_file_path, "res://addons/godot-psd-importer/examples/Sample.psd");
-	register_property<PSDImporter, String>("target_folder_path", &PSDImporter::target_folder_path, "res://");
-	register_property<PSDImporter, String>("error_message", &PSDImporter::error_message, "");
+    register_property<PSDImporter, String>("psd_file_path", &PSDImporter::psdFilePath, "res://addons/godot-psd-importer/examples/Sample.psd");
+	register_property<PSDImporter, String>("target_folder_path", &PSDImporter::targetFolderPath, "res://");
+	register_property<PSDImporter, String>("error_message", &PSDImporter::errorMessage, "");
 
-	register_property<PSDImporter, bool>("verbose_mode", &PSDImporter::verbose_mode, false);
-	register_property<PSDImporter, bool>("crop_to_canvas", &PSDImporter::crop_to_canvas, true);
+	register_property<PSDImporter, bool>("verbose_mode", &PSDImporter::verboseMode, false);
+	register_property<PSDImporter, bool>("crop_to_canvas", &PSDImporter::cropToCanvas, true);
 
-	register_property<PSDImporter, int>("export_type", &PSDImporter::export_type, ExportType::PNG);
+	register_property<PSDImporter, int>("export_type", &PSDImporter::exportType, EXPORT_TYPE::PNG);
+	register_property<PSDImporter, float>("resize_factor", &PSDImporter::resizeFactor, 1);
 
-	register_signal<PSDImporter>("texture_created", "texture_path", GODOT_VARIANT_TYPE_STRING, "position", GODOT_VARIANT_TYPE_VECTOR2);
+	register_signal<PSDImporter>("texture_created", "texture_properties", GODOT_VARIANT_TYPE_DICTIONARY);
 }
 
 PSDImporter::PSDImporter()
@@ -177,7 +175,7 @@ PSDImporter::~PSDImporter()
 
 void PSDImporter::_init()
 {
-	verbose_mode = false;
+	verboseMode = false;
 
 	// Verify if the environment variable 'MAGICK_CODER_MODULE_PATH' is set.
 	String var = "MAGICK_CODER_MODULE_PATH";
@@ -214,29 +212,29 @@ int PSDImporter::test()
 	return 0;
 }
 
-bool PSDImporter::export_all_layers()
+bool PSDImporter::exportAllLayers()
 {
-	if (verbose_mode) 
+	if (verboseMode) 
 	{
 		Godot::print("Exporting all layers..");
 	}
 
     /* Find the real path */
-    psd_file_path = ProjectSettings::get_singleton()->globalize_path(psd_file_path.strip_edges());
+    psdFilePath = ProjectSettings::get_singleton()->globalize_path(psdFilePath.strip_edges());
 	/* Convert to the necessary std::wstring */
-	const std::wstring srcPath = psd_file_path.unicode_str();
+	const std::wstring srcPath = psdFilePath.unicode_str();
 
 	/* Find the real path */
-    target_folder_path = ProjectSettings::get_singleton()->globalize_path(target_folder_path.strip_edges());
+    targetFolderPath = ProjectSettings::get_singleton()->globalize_path(targetFolderPath.strip_edges());
 	/* Check if this folder exists */
 	Directory *dir = Directory::_new();
-	if (!dir->dir_exists(target_folder_path)) {
-		error_message = "Target directory does not exist!";
-		Godot::print("GDPSDImporter Error: " + error_message);
+	if (!dir->dir_exists(targetFolderPath)) {
+		errorMessage = "Target directory does not exist!";
+		Godot::print("GDPSDImporter Error: " + errorMessage);
 		return false;
 	}
 	/* Convert to the necessary std::wstring */
-	const std::wstring targetFolder = target_folder_path.unicode_str();
+	const std::wstring targetFolder = targetFolderPath.unicode_str();
 
 	MallocAllocator allocator;
 	NativeFile file(&allocator);
@@ -244,8 +242,8 @@ bool PSDImporter::export_all_layers()
 	// try opening the file. if it fails, bail out.
 	if (!file.OpenRead(srcPath.c_str()))
 	{
-		error_message = "PSD file cannot be opened!";
-		Godot::print("GDPSDImporter Error: " + error_message);
+		errorMessage = "PSD file cannot be opened!";
+		Godot::print("GDPSDImporter Error: " + errorMessage);
 		return false;
 	}
 
@@ -254,8 +252,8 @@ bool PSDImporter::export_all_layers()
 	Document* document = CreateDocument(&file, &allocator);
 	if (!document)
 	{
-		error_message = "PSD document cannot be created!";
-		Godot::print("GDPSDImporter Error: " + error_message);
+		errorMessage = "PSD document cannot be created!";
+		Godot::print("GDPSDImporter Error: " + errorMessage);
 		file.Close();
 		return false;
 	}
@@ -263,8 +261,8 @@ bool PSDImporter::export_all_layers()
 	// the sample only supports RGB colormode
 	if (document->colorMode != colorMode::RGB)
 	{
-		error_message = "PSD document is not in RGB color mode!";
-		Godot::print("GDPSDImporter Error: " + error_message);
+		errorMessage = "PSD document is not in RGB color mode!";
+		Godot::print("GDPSDImporter Error: " + errorMessage);
 		DestroyDocument(document, &allocator);
 		file.Close();
 		return false;
@@ -303,10 +301,14 @@ bool PSDImporter::export_all_layers()
 
 			unsigned int layer_width = document->width;
 			unsigned int layer_height = document->height;
-			if (crop_to_canvas == false)
+			if (cropToCanvas == false)
 			{
-				layer_width = (unsigned int)(layer->bottom - layer->top);
-				layer_height = (unsigned int)(layer->right - layer->left);
+				std::cout << "top:" << layer->top << "\n";
+				std::cout << "bottom:" << layer->bottom << "\n";
+				std::cout << "left:" << layer->left << "\n";
+				std::cout << "right:" << layer->right << "\n";
+				layer_height = (unsigned int)(layer->bottom - layer->top);
+				layer_width = (unsigned int)(layer->right - layer->left);
 			}
 
 			// note that channel data is only as big as the layer it belongs to, e.g. it can be smaller or bigger than the canvas,
@@ -317,7 +319,7 @@ bool PSDImporter::export_all_layers()
 			if ((indexR != CHANNEL_NOT_FOUND) && (indexG != CHANNEL_NOT_FOUND) && (indexB != CHANNEL_NOT_FOUND))
 			{
 				// RGB channels were found.
-				if (crop_to_canvas == true)
+				if (cropToCanvas == true)
 				{
 					canvasData[0] = ExpandChannelToCanvas(document, &allocator, layer, &layer->channels[indexR]);
 					canvasData[1] = ExpandChannelToCanvas(document, &allocator, layer, &layer->channels[indexG]);
@@ -330,11 +332,12 @@ bool PSDImporter::export_all_layers()
 					canvasData[2] = layer->channels[indexB].data;
 				}
 				channelCount = 3u;
+				channelType = CHANNEL_TYPE::RGB;
 
 				if (indexA != CHANNEL_NOT_FOUND)
 				{
 					// A channel was also found.
-					if (crop_to_canvas == true)
+					if (cropToCanvas == true)
 					{
 						canvasData[3] = ExpandChannelToCanvas(document, &allocator, layer, &layer->channels[indexA]);
 					}
@@ -343,6 +346,7 @@ bool PSDImporter::export_all_layers()
 						canvasData[3] = layer->channels[indexA].data;
 					}
 					channelCount = 4u;
+					channelType = CHANNEL_TYPE::RGBA;
 				}
 			}
 
@@ -383,7 +387,7 @@ bool PSDImporter::export_all_layers()
 			}
 
 			// ONLY free canvasData if the channel was actually copied! Otherwise the channel data is already deleted here!
-			if (crop_to_canvas == true)
+			if (cropToCanvas == true)
 			{
 				allocator.Free(canvasData[0]);
 				allocator.Free(canvasData[1]);
@@ -407,98 +411,54 @@ bool PSDImporter::export_all_layers()
 			// at this point, image8, image16 or image32 store either a 8-bit, 16-bit, or 32-bit image, respectively.
 			// the image data is stored in interleaved RGB or RGBA, and has the size "document->width*document->height".
 			// it is up to you to do whatever you want with the image data. in the sample, we simply write the image to a .TGA file.
-			if (channelCount == 3u)
+			if (document->bitsPerChannel == 8u)
 			{
-				if (document->bitsPerChannel == 8u)
-				{
-					std::wstringstream filename;
-					filename << targetFolder;
-					filename << layerName.str();
-					switch (export_type)
-					{
-					case PNG:
-						filename << L".png";
-						Godot::print(">> Exporting RGB layer '" + String(layerName.str().c_str()) + "' to PNG ('" + String(filename.str().c_str()) + "')");
-						try
-						{
-							pngExporter::SaveRGB(filename.str().c_str(), layer_width, layer_height, image8);
-						}
-						catch(const std::exception& e)
-						{
-							// Verify the environment variable 'MAGICK_CODER_MODULE_PATH'.
-							String var = "MAGICK_CODER_MODULE_PATH";
-							char *value = getenv(var.alloc_c_string());
-							if(!value)
-							{
-								error_message = var + " is missing!";
-							}
-							else
-							{
-								error_message = "Unknown error (check console)";
-							}
-							Godot::print("GDPSDImporter Error (ImageMagick):" + String(e.what()));
-							return false;
-						}
-						break;
-
-					case TGA:
-						filename << L".tga";
-						Godot::print(">> Exporting RGB layer '" + String(layerName.str().c_str()) + "' to TGA ('" + String(filename.str().c_str()) + "')");
-						tgaExporter::SaveRGB(filename.str().c_str(), layer_width, layer_height, image8);
-						break;
-
-					default:
-						break;
-					}
-					std::wstring dummy = filename.str();
-					emit_signal("texture_created", String(dummy.c_str()), Vector2(layer->left ,layer->top));
+				std::wstringstream filename;
+				filename << targetFolder;
+				filename << layerName.str();
+				const char *channelChar;
+				switch (channelType){
+				case MONOCHROME:
+					channelChar = "Monochrome";
+					break;
+				case RGB:
+					channelChar = "RGB";
+					break;
+				case RGBA:
+					channelChar = "RGBA";
+					break;
 				}
-			}
-			else if (channelCount == 4u)
-			{
-				if (document->bitsPerChannel == 8u)
+				switch (exportType)
 				{
-					std::wstringstream filename;
-					filename << targetFolder;
-					filename << layerName.str();
-					switch (export_type)
-					{
-					case PNG:
-						filename << L".png";
-						Godot::print(">> Exporting RGBA layer '" + String(layerName.str().c_str()) + "' to PNG ('" + String(filename.str().c_str()) + "')");
-						try
-						{
-							pngExporter::SaveRGBA(filename.str().c_str(), layer_width, layer_height, image8);
-						}
-						catch(const std::exception& e)
-						{
-							// Verify the environment variable 'MAGICK_CODER_MODULE_PATH'.
-							String var = "MAGICK_CODER_MODULE_PATH";
-							char *value = getenv(var.alloc_c_string());
-							if(!value)
-							{
-								error_message = var + " is missing!";
-							}
-							else
-							{
-								error_message = "Unknown error (check console)";
-							}
-							Godot::print("GDPSDImporter Error (ImageMagick):" + String(e.what()));
-							return false;
-						}
-						break;
-					case TGA:
-						filename << L".tga";
-						Godot::print(">> Exporting RGBA layer '" + String(layerName.str().c_str()) + "' to PNG ('" + String(filename.str().c_str()) + "')");
-						tgaExporter::SaveRGBA(filename.str().c_str(), layer_width, layer_height, image8);
-						break;
+				case PNG:
+					filename << L".png";
+					Godot::print(">> Exporting " + String(channelChar) + " layer '" + String(layerName.str().c_str()) + "' to PNG ('" + String(filename.str().c_str()) + "')");
+					break;
 
-					default:
-						break;
-					}
-					std::wstring dummy = filename.str();
-					emit_signal("texture_created", String(dummy.c_str()), Vector2(layer->left ,layer->top));
+				case TGA:
+					filename << L".tga";
+					Godot::print(">> Exporting " + String(channelChar) + " layer '" + String(layerName.str().c_str()) + "' to TGA ('" + String(filename.str().c_str()) + "')");
+					break;
+
+				default:
+					break;
 				}
+				if (!SaveTexture(filename.str().c_str(), layer_width, layer_height, image8))
+				{
+					return false;
+				}
+				std::wstring dummy = filename.str();
+				Dictionary texture_properties = Dictionary();
+				texture_properties["path"] = String(dummy.c_str());
+				if (cropToCanvas == false)
+				{
+					texture_properties["position"] = Vector2((real_t)layer->left ,(real_t)layer->top);
+				}
+				else 
+				{
+					texture_properties["position"] = Vector2();
+				}
+				emit_signal("texture_created", texture_properties);
 			}
 
 			allocator.Free(image8);
@@ -512,5 +472,83 @@ bool PSDImporter::export_all_layers()
 	DestroyDocument(document, &allocator);
 	file.Close();
 
+	return true;
+}
+
+bool PSDImporter::SaveTexture(const wchar_t* filename, unsigned int width, unsigned int height, const uint8_t* data)
+{
+	try
+	{
+		// Initialise ImageMagick library
+		Magick::InitializeMagick(NULL);
+
+		uint8_t* colors = new uint8_t[width*height*4u];
+		for (unsigned int i=0u; i < height; ++i)
+		{
+			for (unsigned int j=0u; j < width; ++j)
+			{
+				const uint8_t r = data[(i*width + j) * 4u + 0u];
+				const uint8_t g = data[(i*width + j) * 4u + 1u];
+				const uint8_t b = data[(i*width + j) * 4u + 2u];
+				const uint8_t a = data[(i*width + j) * 4u + 3u];
+
+				colors[(i*width + j) * 4u + 2u] = b;
+				colors[(i*width + j) * 4u + 1u] = g;
+				colors[(i*width + j) * 4u + 0u] = r;
+				colors[(i*width + j) * 4u + 3u] = a;
+			}
+		}
+
+		// Create Image object and read in from pixel data above
+		Magick::Image image;
+		switch (channelType)
+		{
+		case MONOCHROME:
+			image.read(width, height, "K", MagickCore::CharPixel, colors);
+			image.negateChannel(MagickCore::BlackChannel, true);
+			break;
+		case RGB:
+			image.read(width, height, "RGB", MagickCore::CharPixel, colors);
+			break;
+		case RGBA:
+			image.read(width, height, "RGBA", MagickCore::CharPixel, colors);
+			break;
+		}
+
+		Magick::Geometry oldSize = image.size();
+		std::cout << oldSize.height() << "\n";
+
+		float newWidth = (float)oldSize.width()*resizeFactor;
+		float newHeight = (float)oldSize.height()*resizeFactor;
+
+		Magick::Geometry newSize = Magick::Geometry((size_t)newWidth, (size_t)newHeight);
+		std::cout << newSize.height() << "\n";
+		newSize.aspect(true);
+		image.resize(newSize);
+
+		// Write the image to a file.
+		std::wstring ws(filename);
+		std::string str(ws.begin(), ws.end());
+		image.write(str);
+
+		// Terminate ImageMagick library
+		Magick::TerminateMagick();
+	}
+	catch(const std::exception& e)
+	{
+		// Verify the environment variable 'MAGICK_CODER_MODULE_PATH'.
+		String var = "MAGICK_CODER_MODULE_PATH";
+		char *value = getenv(var.alloc_c_string());
+		if(!value)
+		{
+			errorMessage = var + " is missing!";
+		}
+		else
+		{
+			errorMessage = "Unknown error (check console)";
+		}
+		Godot::print("GDPSDImporter Error (ImageMagick):" + String(e.what()));
+		return false;
+	}
 	return true;
 }

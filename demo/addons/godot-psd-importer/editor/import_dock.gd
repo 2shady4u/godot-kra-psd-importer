@@ -13,33 +13,35 @@ const NO_ERROR_TEXT := "No errors..."
 enum FIELDS {PSD_FILE, TARGET_FOLDER}
 enum EXPORT_TYPE {PNG, TGA}
 
+var editor_plugin : EditorPlugin = null
+
 var _editor_file_dialog := EditorFileDialog.new()
 var _data_fields := {
 	"psd_file_path": "res://addons/godot-psd-importer/examples/Sample.psd", 
 	"target_folder_path": "res://",
 	"export_type": EXPORT_TYPE.PNG,
-	"crop_to_canvas": true
+	"crop_to_canvas": true,
+	"resize_factor": 1
 	}
 var _is_everything_connected := false
 var _verbose_mode := true
 
 const PSDImporter := preload("res://addons/godot-psd-importer/bin/gdpsdimporter.gdns")
 
-onready var _import_button : Button
-
 onready var _psd_file_line_edit : LineEdit
 onready var _psd_file_dialog_button : Button
-
 onready var _target_folder_line_edit : LineEdit
 onready var _target_folder_dialog_button : Button
-
+onready var _export_type_option_button : OptionButton
 onready var _crop_check_box : CheckBox
+onready var _resize_h_slider : HSlider
+onready var _resize_line_edit : LineEdit
+
+onready var _import_button : Button
 
 onready var _error_label : Label
 
-onready var _export_type_option_button : OptionButton
-
-signal exported_textures_created
+onready var _packed_scene_creator : Node
 
 func _process(_delta : float):
 	if OS.get_name() != "Windows":
@@ -50,6 +52,8 @@ func _process(_delta : float):
 	# Lazy initialization to avoid any problems...
 	if not _is_everything_connected:
 		if _verbose_mode : print("Attempting to connect all necessary signals!")
+		_packed_scene_creator = $PackedSceneCreator
+		
 		_import_button = $VSplitContainer/BuildVBoxContainer/HBoxContainer/ImportButton
 		_import_button.connect("pressed", self, "_import_button_pressed")
 
@@ -79,6 +83,13 @@ func _process(_delta : float):
 		_crop_check_box = grid_container.get_node("CropCheckBox")
 		_crop_check_box.pressed = _data_fields.crop_to_canvas
 		_crop_check_box.connect("toggled", self, "_on_crop_check_box_toggled")
+
+		var resize_container := grid_container.get_node("ResizeContainer")
+		_resize_h_slider = resize_container.get_node("ResizeHSlider")
+		_resize_line_edit = resize_container.get_node("ResizeLineEdit")
+		_resize_h_slider.value = _data_fields.resize_factor
+		_resize_line_edit.text = String(_data_fields.resize_factor)
+		_resize_h_slider.connect("value_changed", self, "_on_resize_h_slider_value_changed")
 
 		_error_label = $VSplitContainer/MainVBoxContainer/ErrorLabel
 		_error_label.text = NO_ERROR_TEXT
@@ -133,9 +144,14 @@ func _on_crop_check_box_toggled(button_pressed : bool):
 	if _verbose_mode: print("CheckBox state toggled...'{0}'".format([button_pressed]))
 	_data_fields.crop_to_canvas = button_pressed
 
-func _import_button_pressed():
+func _on_resize_h_slider_value_changed(value : float):
+	_data_fields.resize_factor = value
+	_resize_line_edit.text = String(value)
+
+func _import_button_pressed() -> void:
 	if _verbose_mode: print("Import button pressed...")
-	
+
+	_import_button.disabled = true
 	_error_label.text = "Importing... please wait!"
 	_error_label.set("custom_colors/font_color", Color.white)
 	_error_label.update()
@@ -148,21 +164,25 @@ func _import_button_pressed():
 	psd_importer.target_folder_path = _data_fields.target_folder_path
 	psd_importer.export_type = _data_fields.export_type
 	psd_importer.crop_to_canvas = _data_fields.crop_to_canvas
+	psd_importer.resize_factor = _data_fields.resize_factor
 	psd_importer.verbose_mode = _verbose_mode
 
-	psd_importer.connect("texture_created", self, "_on_texture_created")
+	psd_importer.connect("texture_created", _packed_scene_creator, "_register_texture_from_importer")
+	var structure_name : String = _data_fields.psd_file_path.get_basename().get_file()
+	_packed_scene_creator.start_mirorred_layer_structure(structure_name)
 
-	var result : bool = psd_importer.export_all_layers()
-	if not result:
+	var success : bool = psd_importer.export_all_layers()
+
+	yield(editor_plugin.scan_sources(), "completed")
+	if not success:
 		_error_label.text = psd_importer.error_message
 		_error_label.set("custom_colors/font_color", Color.red)
 	else:
 		_error_label.text = NO_ERROR_TEXT
 		_error_label.set("custom_colors/font_color", Color.green)
 	_error_label.update()
+	_import_button.disabled = false
 
-	emit_signal("exported_textures_created")
-
-func _on_texture_created(texture_path : String, texture_position : Vector2):
-	print("Texture created by importer, with path '{0}' and position [{1}, {2}]".format([texture_path, texture_position[0], texture_position[1]]))
-	pass
+	var result : int = _packed_scene_creator.finish_mirorred_layer_structure()
+	if result == OK:
+		editor_plugin.open_scene_from_path(_packed_scene_creator.layer_structure_path)

@@ -19,6 +19,10 @@ config/name="PSD Importer Demo"
 run/main_scene="res://Main.tscn"
 config/icon="res://icon.png"
 
+[display]
+
+window/size/height=1024
+
 [editor_plugins]
 
 enabled=PoolStringArray( "godot-psd-importer" )
