@@ -194,22 +194,23 @@ void PSDImporter::_init()
 int PSDImporter::test()
 {
 
-	unsigned char pix[]={200,200,200, 100,100,100, 0,0,0, 255,0,0, 0,255,0, 0,0,255};
-
-	// Initialise ImageMagick library
-	Magick::InitializeMagick(NULL);
-
-	Godot::print("after init");
-
-   	// Create Image object and read in from pixel data above
-	Magick::Image image;
-	image.read(2, 3, "RGB", MagickCore::CharPixel, pix);
-
-	// Write the image to a file - change extension if you want a GIF or JPEG
-	image.magick("png"); 
-	image.write("result.png");
-
+	zipper::Unzipper unzipper("C:\\Users\\piet.bronders\\Documents\\Gitkraken\\GloomInc\\godot-psd-importer\\demo\\addons\\godot-psd-importer\\examples\\krita1.kra");
+	std::vector<zipper::ZipEntry> entries = unzipper.entries();
+	for(auto const& value: entries) {
+		if (value.name == "maindoc.xml"){
+			Godot::print("found maindoc!");
+			std::vector<unsigned char> resvec;
+			unzipper.extractEntryToMemory("maindoc.xml", resvec);
+			std::string test(resvec.begin(), resvec.end());
+			tinyxml2::XMLDocument doc;
+			doc.Parse(test.c_str());
+			std::cout << doc.FirstChildElement( "DOC" )->FirstChildElement( "IMAGE" )->FirstAttribute()->Name() << "\n";
+		}
+		std::cout << value.name << "\n";
+	}
+	unzipper.close();
 	return 0;
+
 }
 
 bool PSDImporter::exportAllLayers()
