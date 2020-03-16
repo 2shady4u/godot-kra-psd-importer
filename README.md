@@ -84,9 +84,9 @@ After setting these fields correctly, the 'import'-button can be used to start t
 
 # <a name="credits">Credits</a>
 
-This plugin makes heavy use of the [PSD Library SDK](https://molecular-matters.com/products_psd_sdk.html), without which this plugin would be impossible.
+This plugin makes heavy use of the [PSD Library SDK](https://molecular-matters.com/products_psd_sdk.html), without which this plugin would be impossible. Alongside this, both the [Zipper](https://github.com/sebastiandev/zipper) and [TinyXML-2](https://github.com/leethomason/tinyxml2) projects are exploited to significantly simplify the import process of *.kra*-files.
 
-For enabling PNG exporting functionalities, the [ImageMagick](https://imagemagick.org/index.php) libraries are employed and the necessary *.dll are included in the addon. 
+For enabling PNG and TGA exporting functionalities, the [ImageMagick](https://imagemagick.org/index.php) libraries are employed and the necessary *.dll are included in the addon. 
 
 # <a name="blatant-self-advertisement">Blatant Self-Advertisement</a>
 
