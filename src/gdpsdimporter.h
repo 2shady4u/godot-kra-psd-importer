@@ -47,6 +47,8 @@ private:
 
     float resizeFactor;
 
+    static int lzff_decompress(const void* input, int length, void* output, int maxout);
+
 public:
     static void _register_methods();
 

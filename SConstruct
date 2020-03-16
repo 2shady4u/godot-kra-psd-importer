@@ -82,7 +82,7 @@ else:
 
 cpp_library += '.' + str(bits)
 
-# make sure our binding library is properly includes
+# make sure our binding library is properly included
 env.Append(CPPPATH=['.', 
 godot_headers_path,
 cpp_bindings_path + 'include/', 
