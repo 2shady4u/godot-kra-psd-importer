@@ -34,6 +34,10 @@
 #include "Psd/PsdExportDocument.h"
 #include "Psd/PsdLayerType.h"
 
+#include "Kra/KraDocument.h"
+#include "Kra/KraParseDocument.h"
+#include "Kra/KraExportDocument.h"
+
 PSD_PUSH_WARNING_LEVEL(0)
 	// disable annoying warning caused by xlocale(337): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
 	#pragma warning(disable:4530)
@@ -42,6 +46,7 @@ PSD_PUSH_WARNING_LEVEL(0)
 PSD_POP_WARNING_LEVEL
 
 PSD_USING_NAMESPACE;
+KRA_USING_NAMESPACE;
 
 
 // helpers for reading PSDs
@@ -195,166 +200,45 @@ void PSDImporter::_init()
 int PSDImporter::test()
 {
 
-	zipper::Unzipper unzipper("C:\\Users\\piet.bronders\\Documents\\Gitkraken\\GloomInc\\godot-psd-importer\\demo\\addons\\godot-psd-importer\\examples\\yolo.kra");
-	std::vector<zipper::ZipEntry> entries = unzipper.entries();
-	for(auto const& value: entries) {
-		if (value.name == "maindoc.xml"){
-			Godot::print("found maindoc!");
-			std::vector<unsigned char> resvec;
-			unzipper.extractEntryToMemory("maindoc.xml", resvec);
-			std::string test(resvec.begin(), resvec.end());
-			tinyxml2::XMLDocument doc;
-			doc.Parse(test.c_str());
-			std::cout << doc.FirstChildElement( "DOC" )->FirstChildElement( "IMAGE" )->FirstAttribute()->Name() << "\n";
-		}
+	String kraFilePath = "res://addons/godot-psd-importer/examples/krita_red.kra";
+ 	/* Find the real path */
+    kraFilePath = ProjectSettings::get_singleton()->globalize_path(kraFilePath.strip_edges());
+	/* Convert to the necessary std::wstring */
+	const char* srcPath = kraFilePath.alloc_c_string();
 
-		if (value.name == "yolo/layers/layer2"){
-			Godot::print("found maindoc!");
-			std::vector<unsigned char> resvec;
-			unzipper.extractEntryToMemory("yolo/layers/layer2", resvec);
+	KraDocument document = ParseKraDocument(srcPath);
 
-			// Initialise ImageMagick library
-			Magick::InitializeMagick(NULL);
+	std::vector<KraTile> exportedTiles = ExportKraDocument(document);
+		std::cout << "don0e" << "\n";
+	int number = 0;
 
-			// Create Image object and read in from pixel data above
-			Magick::Image image;
-			std::vector<unsigned char> resvec_clipped(resvec.begin()+68, resvec.end());
-			const uint8_t* resvec_ptr = resvec_clipped.data();
-			std::cout << "DUMP_START\n";
-			for (int i = 0; i < 64; i++){
-				printf("%i ", resvec_clipped[i]);
-			}
-			std::cout << "DUMP_END\n";
+	// Initialise ImageMagick library
+	Magick::InitializeMagick(NULL);
+		std::cout << "don1e" << "\n";
 
-			int tile_data_size = 4*64*64;
-			uint8_t* output = (uint8_t*) malloc(tile_data_size);
+	for (auto const& tile : exportedTiles)
+	{
+		Magick::Image image;
 
-			lzff_decompress(resvec_ptr + 1, resvec_clipped.size(), output, tile_data_size);
+	std::cout << "don2e" << "\n";
+		image.read(tile.width, tile.height, "RGBA", MagickCore::CharPixel, tile.data);
 
-			/*// read 9-byte header to find the size of the entire compressed packet, and 
-			// then read remaining packet
-			while((c = fread(file_data, 1, 9, ifile)) != 0)
-			{
-				c = qlz_size_compressed(file_data);
-				fread(file_data + 9, 1, c - 9, ifile);
-				std::cout << "wie" << "\n";
-				try
-				{
-					d = qlz_decompress(file_data, decompressed, state_decompress);
-				}
-				catch(const std::exception& e)
-				{
-					std::cerr << e.what() << '\n';
-				}
-				std::cout << "wue" << "\n";
-				printf("%u bytes decompressed into %u.\n", (unsigned int)c, (unsigned int)d);
-			}
-			fclose(ifile);
-			return 0;*/
+std::cout << "don25e" << "\n";
+		std::stringstream ss;
+		ss << number;
+		std::string out_string = ss.str();
 
-			//split the channels!
-			uint8_t* sortedOutput = (uint8_t*) malloc(tile_data_size);
-			int jj = 0;
-			for (int i = 0; i < 64*64; i++){
-				sortedOutput[jj] = output[2*64*64+i]; //RED CHANNEL
-				sortedOutput[jj+1] = output[64*64+i]; //GREEN CHANNEL
-				sortedOutput[jj+2] = output[i]; //BLUE CHANNEL
-				sortedOutput[jj+3] = output[3*64*64+i]; //ALPHA CHANNEL
-				jj = jj + 4;
-			}
-			std::cout << jj << "\n";
+		// Write the image to a file.
+		image.write("test" + out_string + ".png");
 
-			int j = 0;
-			std::cout << "DUMP_START\n";
-			for (int i = 0; i < 256; i++){
-				j++;
-				printf("%i ", sortedOutput[i]);
-				if (j==64){
-					j = 0;
-					printf("\n");
-				}
-			}
-			std::cout << "DUMP_END\n";
-
-			image.read(64, 64, "RGBA", MagickCore::CharPixel, sortedOutput);
-
-			// Write the image to a file.
-			image.write("test.png");
-
-			// Terminate ImageMagick library
-			Magick::TerminateMagick();
-		}
-		
-		std::cout << value.name << "\n";
+	std::cout << "don3e" << "\n";
+		number++;
 	}
-	unzipper.close();
-	return 0;
 
-}
+	std::cout << "don4e" << "\n";
+	// Terminate ImageMagick library
+	Magick::TerminateMagick();
 
-int PSDImporter::lzff_decompress(const void* input, int length, void* output, int maxout)
-{
-    const unsigned char* ip = (const unsigned char*) input;
-    const unsigned char* ip_limit  = ip + length - 1;
-    unsigned char* op = (unsigned char*) output;
-    unsigned char* op_limit = op + maxout;
-    unsigned char* ref;
-
-    while (ip < ip_limit) {
-        unsigned int ctrl = (*ip) + 1;
-        unsigned int ofs = ((*ip) & 31) << 8;
-        unsigned int len = (*ip++) >> 5;
-
-        if (ctrl < 33) {
-            /* literal copy */
-            if (op + ctrl > op_limit)
-                return 0;
-
-            /* crazy unrolling */
-            if (ctrl) {
-                *op++ = *ip++;
-                ctrl--;
-
-                if (ctrl) {
-                    *op++ = *ip++;
-                    ctrl--;
-
-                    if (ctrl) {
-                        *op++ = *ip++;
-                        ctrl--;
-
-                        for (; ctrl; ctrl--)
-                            *op++ = *ip++;
-                    }
-                }
-            }
-        } else {
-            /* back reference */
-            len--;
-            ref = op - ofs;
-            ref--;
-
-            if (len == 7 - 1)
-                len += *ip++;
-
-            ref -= *ip++;
-
-            if (op + len + 3 > op_limit)
-                return 0;
-
-            if (ref < (unsigned char *)output)
-                return 0;
-
-            *op++ = *ref++;
-            *op++ = *ref++;
-            *op++ = *ref++;
-            if (len)
-                for (; len; --len)
-                    *op++ = *ref++;
-        }
-    }
-
-    return op - (unsigned char*)output;
 }
 
 bool PSDImporter::exportAllLayers()

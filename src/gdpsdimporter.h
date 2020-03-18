@@ -6,9 +6,6 @@
 #include <Directory.hpp>
 #include <ProjectSettings.hpp>
 #include <Magick++.h>
-#include <zipper.h>
-#include <unzipper.h>
-#include <tinyxml2/tinyxml2.h>
 
 #include <vector>
 #include <fstream>
