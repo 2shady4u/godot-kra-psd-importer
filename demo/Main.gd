@@ -1,11 +1,11 @@
 extends Node2D
 
-const PSDImporter := preload("res://addons/godot-psd-importer/bin/gdpsdimporter.gdns")
+const KRAPSDImporter := preload("res://addons/godot-kra-psd-importer/bin/gdkrapsdimporter.gdns")
 
-var psd_importer
+var kra_psd_importer
 
 func _ready():
-	psd_importer = PSDImporter.new()
+	kra_psd_importer = KRAPSDImporter.new()
 
-	var result : int = psd_importer.test()
+	var result : int = kra_psd_importer.test()
 	print(result)

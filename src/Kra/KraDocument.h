@@ -2,7 +2,6 @@
 
 #include "KraPch.h"
 #include "KraLayer.h"
-#include <vector>
 
 KRA_NAMESPACE_BEGIN
 

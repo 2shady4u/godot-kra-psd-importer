@@ -145,10 +145,10 @@ std::vector<KraTile> ParseTiles(std::vector<unsigned char> layerContent)
 	const std::string & lzfString = "0,0,LZF,";
 
 	tile.version = ParseHeaderElement(layerContent, "VERSION ", currentIndex);
-	tile.width = ParseHeaderElement(layerContent, "TILEWIDTH ", currentIndex);
-	tile.height = ParseHeaderElement(layerContent, "TILEHEIGHT ", currentIndex);
+	tile.tileWidth = ParseHeaderElement(layerContent, "TILEWIDTH ", currentIndex);
+	tile.tileHeight = ParseHeaderElement(layerContent, "TILEHEIGHT ", currentIndex);
 	tile.pixelSize = ParseHeaderElement(layerContent, "PIXELSIZE ", currentIndex);
-	tile.decompressedLength = tile.pixelSize*tile.width*tile.height;
+	tile.decompressedLength = tile.pixelSize*tile.tileWidth*tile.tileHeight;
 
 	numberOfTiles = ParseHeaderElement(layerContent, "DATA ", currentIndex);
 	for (unsigned int i = 0; i < numberOfTiles; i++) 
@@ -158,42 +158,36 @@ std::vector<KraTile> ParseTiles(std::vector<unsigned char> layerContent)
 		//Now it is time to extract & decompress the data!
 		//First get the last header element out of there!
 		std::string headerString = GetHeaderElement(layerContent, currentIndex);
-		std::string delimiter = ",";
+  		std::regex e ("(-?\\d*),(-?\\d*),(\\w*),(\\d*)");
+		std::smatch sm; 
+  		std::regex_match (headerString, sm, e);
 
-		size_t pos = 0;
-		std::string token;
-		int currentToken = 0;
-		while ((pos = headerString.find(delimiter)) != std::string::npos)
-		{
-    		token = headerString.substr(0, pos);
-			std::stringstream strValue;
-			strValue << token;
-			switch (currentToken)
-			{
-			case 0:
-				strValue >> copiedTile.positionX;
-				break;
-			case 1:
-				strValue >> copiedTile.positionY;
-				break;
-			case 2: // just LZF, don't care about this!
-				break;
-			case 3:
-				strValue >> copiedTile.compressedLength;
-				break;
-			default:
-				break;
-			}
-    		headerString.erase(0, pos + delimiter.length());
-		}
+		std::stringstream strValue;
+		strValue << sm[1];
+		strValue >> copiedTile.offsetX;
+		printf("offset x = %i\n", copiedTile.offsetX);
 
-		std::cout << copiedTile.compressedLength << "\n";
+		strValue.clear();
+		strValue << sm[2];
+		strValue >> copiedTile.offsetY;
+		printf("offset y = %i\n", copiedTile.offsetY);
 
-		std::vector<unsigned char> clippedContent(layerContent.begin()+currentIndex, layerContent.begin()+currentIndex+tile.compressedLength);
+		//We don't really care about sm[3] since it is always 'LZF'
+
+		strValue.clear();
+		strValue << sm[4];
+		strValue >> copiedTile.compressedLength;
+		printf("comp length = %i\n", copiedTile.compressedLength);
+
+		std::vector<unsigned char> clippedContent(layerContent.begin()+currentIndex, layerContent.begin()+currentIndex+copiedTile.compressedLength);
 		const uint8_t* clippedContent_ptr = clippedContent.data();
 
+		std::cout << currentIndex << "\n";
+		std::cout << copiedTile.compressedLength << "\n";
+		std::cout << clippedContent.size() << "\n";
+
 		uint8_t* output = (uint8_t*) malloc(tile.decompressedLength);
-		lzff_decompress(clippedContent_ptr + 1, tile.compressedLength, output, tile.decompressedLength);
+		lzff_decompress(clippedContent_ptr + 1, copiedTile.compressedLength, output, copiedTile.decompressedLength);
 		uint8_t* sortedOutput = (uint8_t*) malloc(tile.decompressedLength);
 		int jj = 0;
 		for (int i = 0; i < 64*64; i++){
@@ -203,11 +197,27 @@ std::vector<KraTile> ParseTiles(std::vector<unsigned char> layerContent)
 				sortedOutput[jj+3] = output[3*64*64+i]; //ALPHA CHANNEL
 				jj = jj + 4;
 		}
-		tile.data = sortedOutput;
+		copiedTile.data = sortedOutput;
+
+		std::cout << "clip size " << clippedContent.size() << "\n";
+
+		int j = 0;
+		std::cout << "DUMP_START\n";
+		for (int i = 0; i < 256; i++)
+		{
+			j++;
+			printf("%i ", sortedOutput[i]);
+			if (j==64)
+			{
+				j = 0;
+				printf("\n");
+			}
+		}
+		std::cout << "DUMP_END\n";
 
 		tiles.push_back(copiedTile);
 
-		currentIndex += tile.compressedLength;
+		currentIndex += copiedTile.compressedLength;
 
 	}
 
@@ -268,6 +278,7 @@ std::string GetHeaderElement(std::vector<unsigned char> layerContent, unsigned i
 	}
 	std::cout << "\n";
 	std::string elementValue(reinterpret_cast<char*>(elementContent.data()), endIndex - startIndex);
+	currentIndex++;
 	return elementValue;
 }
 

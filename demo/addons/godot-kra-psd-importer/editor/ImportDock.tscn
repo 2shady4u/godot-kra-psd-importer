@@ -1,7 +1,9 @@
 [gd_scene load_steps=5 format=2]
 
-[ext_resource path="res://addons/godot-psd-importer/editor/import_dock.gd" type="Script" id=1]
-[ext_resource path="res://addons/godot-psd-importer/editor/packed_scene_creator.gd" type="Script" id=2]
+[ext_resource path="res://addons/godot-kra-psd-importer/editor/import_dock.gd" type="Script" id=1]
+[ext_resource path="res://addons/godot-kra-psd-importer/editor/packed_scene_creator.gd" type="Script" id=2]
+
+
 
 [sub_resource type="Image" id=3]
 data = {
@@ -18,7 +20,7 @@ flags = 4
 image = SubResource( 3 )
 size = Vector2( 16, 16 )
 
-[node name="Import PSD" type="Control"]
+[node name="Import KRA or PSD" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 script = ExtResource( 1 )
@@ -86,27 +88,27 @@ size_flags_horizontal = 3
 columns = 2
 
 [node name="PsdFileLabel" type="Label" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer"]
-margin_right = 52.0
+margin_right = 82.0
 margin_bottom = 24.0
 size_flags_horizontal = 0
 size_flags_vertical = 1
-text = "PSD File"
+text = "KRA/PSD File"
 valign = 1
 
-[node name="PsdFileContainer" type="HBoxContainer" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer"]
+[node name="RawFileContainer" type="HBoxContainer" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer"]
 margin_left = 143.0
 margin_right = 1014.0
 margin_bottom = 24.0
 size_flags_horizontal = 3
 
-[node name="PsdFileLineEdit" type="LineEdit" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer/PsdFileContainer"]
+[node name="RawFileLineEdit" type="LineEdit" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer/RawFileContainer"]
 margin_right = 839.0
 margin_bottom = 24.0
 size_flags_horizontal = 3
-text = "res://addons/godot-psd-importer/examples/Sample.psd"
+text = "res://addons/godot-kra-psd-importer/examples/Sample.psd"
 editable = false
 
-[node name="PsdFileDialogButton" type="Button" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer/PsdFileContainer"]
+[node name="RawFileDialogButton" type="Button" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer/RawFileContainer"]
 margin_left = 843.0
 margin_right = 871.0
 margin_bottom = 24.0
@@ -211,7 +213,7 @@ size_flags_vertical = 4
 min_value = 0.1
 max_value = 10.0
 step = 0.1
-value = 0.1
+value = 1.0
 
 [node name="ResizeLineEdit" type="LineEdit" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer/ResizeContainer"]
 margin_left = 813.0

@@ -8,7 +8,7 @@
 #include <zipper.h>
 #include <unzipper.h>
 #include <tinyxml2/tinyxml2.h>
-#include <string>
+#include <regex>
 
 KRA_NAMESPACE_BEGIN
 

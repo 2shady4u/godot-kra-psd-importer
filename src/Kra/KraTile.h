@@ -12,17 +12,18 @@ struct KraTile
 {
 
     unsigned int version;
-    unsigned int height;
-    unsigned int width;
+    unsigned int tileHeight;
+    unsigned int tileWidth;
     unsigned int pixelSize;
 
-    unsigned int positionX;
-    unsigned int positionY;
+    // Offset can also be negative!
+    int offsetX;
+    int offsetY;
 
     int compressedLength;
     int decompressedLength;
 
-    unsigned char* data;
+    uint8_t* data;
 };
 
 KRA_NAMESPACE_END

@@ -1,4 +1,4 @@
-#include "gdpsdimporter.h"
+#include "gdkrapsdimporter.h"
 
 // the main include that always needs to be included in every translation unit that uses the PSD library
 #include "Psd/Psd.h"
@@ -35,6 +35,7 @@
 #include "Psd/PsdLayerType.h"
 
 #include "Kra/KraDocument.h"
+#include "Kra/KraExportedLayer.h"
 #include "Kra/KraParseDocument.h"
 #include "Kra/KraExportDocument.h"
 
@@ -152,34 +153,34 @@ namespace
 
 using namespace godot;
 
-void PSDImporter::_register_methods()
+void KRAPSDImporter::_register_methods()
 {
 
-    register_method("export_all_layers", &PSDImporter::exportAllLayers);
-	register_method("test", &PSDImporter::test);
+    register_method("export_all_layers", &KRAPSDImporter::exportAllLayers);
+	register_method("test", &KRAPSDImporter::test);
 
-    register_property<PSDImporter, String>("psd_file_path", &PSDImporter::psdFilePath, "res://addons/godot-psd-importer/examples/Sample.psd");
-	register_property<PSDImporter, String>("target_folder_path", &PSDImporter::targetFolderPath, "res://");
-	register_property<PSDImporter, String>("error_message", &PSDImporter::errorMessage, "");
+    register_property<KRAPSDImporter, String>("raw_file_path", &KRAPSDImporter::rawFilePath, "res://addons/godot-psd-importer/examples/Sample.psd");
+	register_property<KRAPSDImporter, String>("target_folder_path", &KRAPSDImporter::targetFolderPath, "res://");
+	register_property<KRAPSDImporter, String>("error_message", &KRAPSDImporter::errorMessage, "");
 
-	register_property<PSDImporter, bool>("verbose_mode", &PSDImporter::verboseMode, false);
-	register_property<PSDImporter, bool>("crop_to_canvas", &PSDImporter::cropToCanvas, true);
+	register_property<KRAPSDImporter, bool>("verbose_mode", &KRAPSDImporter::verboseMode, false);
+	register_property<KRAPSDImporter, bool>("crop_to_canvas", &KRAPSDImporter::cropToCanvas, true);
 
-	register_property<PSDImporter, int>("export_type", &PSDImporter::exportType, EXPORT_TYPE::PNG);
-	register_property<PSDImporter, float>("resize_factor", &PSDImporter::resizeFactor, 1);
+	register_property<KRAPSDImporter, int>("export_type", &KRAPSDImporter::exportType, EXPORT_TYPE::PNG);
+	register_property<KRAPSDImporter, float>("resize_factor", &KRAPSDImporter::resizeFactor, 1);
 
-	register_signal<PSDImporter>("texture_created", "texture_properties", GODOT_VARIANT_TYPE_DICTIONARY);
+	register_signal<KRAPSDImporter>("texture_created", "texture_properties", GODOT_VARIANT_TYPE_DICTIONARY);
 }
 
-PSDImporter::PSDImporter()
-{
-}
-
-PSDImporter::~PSDImporter()
+KRAPSDImporter::KRAPSDImporter()
 {
 }
 
-void PSDImporter::_init()
+KRAPSDImporter::~KRAPSDImporter()
+{
+}
+
+void KRAPSDImporter::_init()
 {
 	verboseMode = false;
 
@@ -192,15 +193,15 @@ void PSDImporter::_init()
 	}
 	else
 	{
-		Godot::print("GDPSDImporter warning: Environment variable " + var + " is not set in the system registery! (Ignore warning if ImageMagick is installed)");
+		Godot::print("GDKRAPSDImporter warning: Environment variable " + var + " is not set in the system registry! (Ignore warning if ImageMagick is installed)");
 	}
 
 }
 
-int PSDImporter::test()
+int KRAPSDImporter::test()
 {
 
-	String kraFilePath = "res://addons/godot-psd-importer/examples/krita_red.kra";
+	String kraFilePath = "res://addons/godot-psd-importer/examples/bigger.kra";
  	/* Find the real path */
     kraFilePath = ProjectSettings::get_singleton()->globalize_path(kraFilePath.strip_edges());
 	/* Convert to the necessary std::wstring */
@@ -208,20 +209,32 @@ int PSDImporter::test()
 
 	KraDocument document = ParseKraDocument(srcPath);
 
-	std::vector<KraTile> exportedTiles = ExportKraDocument(document);
-		std::cout << "don0e" << "\n";
+	std::vector<KraExportedLayer> exportedLayers = ExportKraDocument(document);
 	int number = 0;
 
 	// Initialise ImageMagick library
 	Magick::InitializeMagick(NULL);
-		std::cout << "don1e" << "\n";
 
-	for (auto const& tile : exportedTiles)
+	for (auto const& layer : exportedLayers)
 	{
 		Magick::Image image;
 
-	std::cout << "don2e" << "\n";
-		image.read(tile.width, tile.height, "RGBA", MagickCore::CharPixel, tile.data);
+		int j = 0;
+		std::cout << "DUMP_START\n";
+		for (int i = 0; i < 256; i++)
+		{
+			j++;
+			printf("%i ", layer.data[i]);
+			if (j==64)
+			{
+				j = 0;
+				printf("\n");
+			}
+		}
+		std::cout << "DUMP_END\n";
+
+	std::cout << "banana" << layer.layerWidth << "\n";
+		image.read(layer.layerWidth, layer.layerHeight, "RGBA", MagickCore::CharPixel, layer.data);
 
 std::cout << "don25e" << "\n";
 		std::stringstream ss;
@@ -238,10 +251,21 @@ std::cout << "don25e" << "\n";
 	std::cout << "don4e" << "\n";
 	// Terminate ImageMagick library
 	Magick::TerminateMagick();
+	return 0;
 
 }
 
-bool PSDImporter::exportAllLayers()
+bool KRAPSDImporter::exportAllKRALayers()
+{
+	return true;
+}
+
+bool KRAPSDImporter::exportAllPSDLayers()
+{
+	return true;
+}
+
+bool KRAPSDImporter::exportAllLayers()
 {
 	if (verboseMode) 
 	{
@@ -249,9 +273,9 @@ bool PSDImporter::exportAllLayers()
 	}
 
     /* Find the real path */
-    psdFilePath = ProjectSettings::get_singleton()->globalize_path(psdFilePath.strip_edges());
+    rawFilePath = ProjectSettings::get_singleton()->globalize_path(rawFilePath.strip_edges());
 	/* Convert to the necessary std::wstring */
-	const std::wstring srcPath = psdFilePath.unicode_str();
+	const std::wstring srcPath = rawFilePath.unicode_str();
 
 	/* Find the real path */
     targetFolderPath = ProjectSettings::get_singleton()->globalize_path(targetFolderPath.strip_edges());
@@ -508,7 +532,7 @@ bool PSDImporter::exportAllLayers()
 	return true;
 }
 
-bool PSDImporter::SaveTexture(const wchar_t* filename, unsigned int width, unsigned int height, const uint8_t* data)
+bool KRAPSDImporter::SaveTexture(const wchar_t* filename, unsigned int width, unsigned int height, const uint8_t* data)
 {
 	try
 	{
@@ -580,7 +604,7 @@ bool PSDImporter::SaveTexture(const wchar_t* filename, unsigned int width, unsig
 		{
 			errorMessage = "Unknown error (check console)";
 		}
-		Godot::print("GDPSDImporter Error (ImageMagick):" + String(e.what()));
+		Godot::print("GDKRAPSDImporter Error (ImageMagick):" + String(e.what()));
 		return false;
 	}
 	return true;

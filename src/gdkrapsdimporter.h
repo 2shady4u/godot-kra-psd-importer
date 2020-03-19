@@ -1,5 +1,5 @@
-#ifndef GDPSDIMPORTER_H
-#define GDPSDIMPORTER_H
+#ifndef GDKRAPSDIMPORTER_H
+#define GDKRAPSDIMPORTER_H
 
 #include <Godot.hpp>
 #include <Reference.hpp>
@@ -15,8 +15,8 @@
 
 namespace godot {
 
-class PSDImporter : public Reference {
-    GODOT_CLASS(PSDImporter, Reference)
+class KRAPSDImporter : public Reference {
+    GODOT_CLASS(KRAPSDImporter, Reference)
 
 typedef enum
 {
@@ -26,13 +26,19 @@ typedef enum
 
 typedef enum
 {
+    KRA,
+    PSD
+} IMPORT_TYPE;
+
+typedef enum
+{
     MONOCHROME,
     RGB,
     RGBA
 } CHANNEL_TYPE;
 
 private:
-    String psdFilePath;
+    String rawFilePath;
     String targetFolderPath;
     String errorMessage;
 
@@ -44,18 +50,19 @@ private:
 
     float resizeFactor;
 
-    static int lzff_decompress(const void* input, int length, void* output, int maxout);
+    bool exportAllPSDLayers();
+    bool exportAllKRALayers();
+    bool SaveTexture(const wchar_t* filename, unsigned int width, unsigned int height, const uint8_t* data);
 
 public:
     static void _register_methods();
 
-    PSDImporter();
-    ~PSDImporter();
+    KRAPSDImporter();
+    ~KRAPSDImporter();
 
     void _init();
 
     bool exportAllLayers();
-    bool SaveTexture(const wchar_t* filename, unsigned int width, unsigned int height, const uint8_t* data);
     int test();
 };
 

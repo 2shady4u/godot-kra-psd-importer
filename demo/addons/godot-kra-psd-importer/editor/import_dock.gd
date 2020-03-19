@@ -10,14 +10,14 @@ extends Control
 
 const NO_ERROR_TEXT := "No errors..." 
 
-enum FIELDS {PSD_FILE, TARGET_FOLDER}
+enum FIELDS {RAW_FILE, TARGET_FOLDER}
 enum EXPORT_TYPE {PNG, TGA}
 
 var editor_plugin : EditorPlugin = null
 
 var _editor_file_dialog := EditorFileDialog.new()
 var _data_fields := {
-	"psd_file_path": "res://addons/godot-psd-importer/examples/Sample.psd", 
+	"raw_file_path": "res://addons/godot-kra-psd-importer/examples/Sample.psd", 
 	"target_folder_path": "res://",
 	"export_type": EXPORT_TYPE.PNG,
 	"crop_to_canvas": true,
@@ -26,10 +26,10 @@ var _data_fields := {
 var _is_everything_connected := false
 var _verbose_mode := true
 
-const PSDImporter := preload("res://addons/godot-psd-importer/bin/gdpsdimporter.gdns")
+const KRAPSDImporter := preload("res://addons/godot-kra-psd-importer/bin/gdkrapsdimporter.gdns")
 
-onready var _psd_file_line_edit : LineEdit
-onready var _psd_file_dialog_button : Button
+onready var _raw_file_line_edit : LineEdit
+onready var _raw_file_dialog_button : Button
 onready var _target_folder_line_edit : LineEdit
 onready var _target_folder_dialog_button : Button
 onready var _export_type_option_button : OptionButton
@@ -59,14 +59,14 @@ func _process(_delta : float):
 
 		var grid_container := $VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer
 
-		var psd_file_container := grid_container.get_node("PsdFileContainer")
-		_psd_file_line_edit = psd_file_container.get_node("PsdFileLineEdit")
-		_psd_file_dialog_button = psd_file_container.get_node("PsdFileDialogButton")
+		var raw_file_container := grid_container.get_node("RawFileContainer")
+		_raw_file_line_edit = raw_file_container.get_node("RawFileLineEdit")
+		_raw_file_dialog_button = raw_file_container.get_node("RawFileDialogButton")
 
-		_psd_file_line_edit.connect("text_entered", self, "_on_file_or_folder_selected", [FIELDS.PSD_FILE])
-		_psd_file_line_edit.text = _data_fields.psd_file_path
-		_psd_file_dialog_button.connect("pressed", self, "_on_dialog_button_pressed", [FIELDS.PSD_FILE])
-		_psd_file_dialog_button.icon = get_icon("Folder", "EditorIcons")
+		_raw_file_line_edit.connect("text_entered", self, "_on_file_or_folder_selected", [FIELDS.RAW_FILE])
+		_raw_file_line_edit.text = _data_fields.raw_file_path
+		_raw_file_dialog_button.connect("pressed", self, "_on_dialog_button_pressed", [FIELDS.RAW_FILE])
+		_raw_file_dialog_button.icon = get_icon("Folder", "EditorIcons")
 
 		var target_folder_container := grid_container.get_node("TargetFolderContainer")
 		_target_folder_line_edit = target_folder_container.get_node("TargetFolderLineEdit")
@@ -109,10 +109,11 @@ func _on_dialog_button_pressed(data_field : int):
 	_editor_file_dialog.clear_filters()
 
 	match data_field:
-		FIELDS.PSD_FILE:
+		FIELDS.RAW_FILE:
 			_editor_file_dialog.connect("file_selected", self, "_on_file_or_folder_selected", [data_field])
 			_editor_file_dialog.set_mode(FileDialog.MODE_OPEN_FILE)
 			_editor_file_dialog.add_filter("*.psd;Photoshop Document")
+			_editor_file_dialog.add_filter("*.kra;Photoshop Document")
 		FIELDS.TARGET_FOLDER:
 			_editor_file_dialog.connect("dir_selected", self, "_on_file_or_folder_selected", [data_field])
 			_editor_file_dialog.set_mode(FileDialog.MODE_OPEN_DIR)
@@ -123,10 +124,10 @@ func _on_dialog_button_pressed(data_field : int):
 func _on_file_or_folder_selected(path: String, data_field : int):
 	if _verbose_mode: print("File or folder selected...'{0}'".format([path]))
 	match data_field:
-		FIELDS.PSD_FILE:
-			_data_fields.psd_file_path = ProjectSettings.localize_path(path)
-			_psd_file_line_edit.text = _data_fields.psd_file_path
-			_psd_file_line_edit.update()
+		FIELDS.RAW_FILE:
+			_data_fields.raw_file_path = ProjectSettings.localize_path(path)
+			_raw_file_line_edit.text = _data_fields.raw_file_path
+			_raw_file_line_edit.update()
 			if _editor_file_dialog.is_connected("file_selected", self, "_on_file_or_folder_selected"):
 				_editor_file_dialog.disconnect("file_selected", self, "_on_file_or_folder_selected")
 		FIELDS.TARGET_FOLDER:
@@ -159,23 +160,23 @@ func _import_button_pressed() -> void:
 	yield(get_tree(), "idle_frame")
 	yield(VisualServer, "frame_post_draw")
 	
-	var psd_importer = PSDImporter.new()
-	psd_importer.psd_file_path = _data_fields.psd_file_path
-	psd_importer.target_folder_path = _data_fields.target_folder_path
-	psd_importer.export_type = _data_fields.export_type
-	psd_importer.crop_to_canvas = _data_fields.crop_to_canvas
-	psd_importer.resize_factor = _data_fields.resize_factor
-	psd_importer.verbose_mode = _verbose_mode
+	var kra_psd_importer = KRAPSDImporter.new()
+	kra_psd_importer.raw_file_path = _data_fields.raw_file_path
+	kra_psd_importer.target_folder_path = _data_fields.target_folder_path
+	kra_psd_importer.export_type = _data_fields.export_type
+	kra_psd_importer.crop_to_canvas = _data_fields.crop_to_canvas
+	kra_psd_importer.resize_factor = _data_fields.resize_factor
+	kra_psd_importer.verbose_mode = _verbose_mode
 
-	psd_importer.connect("texture_created", _packed_scene_creator, "_register_texture_from_importer")
-	var structure_name : String = _data_fields.psd_file_path.get_basename().get_file()
+	kra_psd_importer.connect("texture_created", _packed_scene_creator, "_register_texture_from_importer")
+	var structure_name : String = _data_fields.raw_file_path.get_basename().get_file()
 	_packed_scene_creator.start_mirorred_layer_structure(structure_name)
 
-	var success : bool = psd_importer.export_all_layers()
+	var success : bool = kra_psd_importer.export_all_layers()
 
 	yield(editor_plugin.scan_sources(), "completed")
 	if not success:
-		_error_label.text = psd_importer.error_message
+		_error_label.text = kra_psd_importer.error_message
 		_error_label.set("custom_colors/font_color", Color.red)
 	else:
 		_error_label.text = NO_ERROR_TEXT
