@@ -46,6 +46,7 @@ private:
     bool cropToCanvas;
 
     int exportType;
+    int importType;
     int channelType;
 
     float resizeFactor;

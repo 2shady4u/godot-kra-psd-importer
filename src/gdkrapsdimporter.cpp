@@ -255,6 +255,55 @@ std::cout << "don25e" << "\n";
 
 }
 
+bool KRAPSDImporter::exportAllLayers()
+{
+	if (verboseMode) 
+	{
+		Godot::print("Exporting all layers...");
+	}
+
+    /* Find the real path */
+    rawFilePath = ProjectSettings::get_singleton()->globalize_path(rawFilePath.strip_edges());
+
+	/* Find the real path */
+    targetFolderPath = ProjectSettings::get_singleton()->globalize_path(targetFolderPath.strip_edges());
+	/* Check if the target folder exists */
+	Directory *dir = Directory::_new();
+	if (!dir->dir_exists(targetFolderPath)) {
+		errorMessage = "Target directory does not exist!";
+		Godot::print("GDKRAPSDImporter Error: " + errorMessage);
+		return false;
+	}
+
+	/* Find out if it is a KRA- or PSD-file that is being imported */
+	String extension = rawFilePath.get_extension();
+
+	if (extension == "kra")
+	{
+		if (verboseMode) 
+		{
+			Godot::print("Detected KRA-format... running KRA export!");
+		}
+		importType = IMPORT_TYPE::KRA;
+		return exportAllKRALayers();
+	}
+	else if (extension == "psd")
+	{
+		if (verboseMode) 
+		{
+			Godot::print("Detected PSD-format... running PSD export!");
+		}
+		importType = IMPORT_TYPE::PSD;
+		return exportAllPSDLayers();
+	}
+	else
+	{
+		errorMessage = "File extension with name '" + extension + "' is invalid!";
+		Godot::print("GDKRAPSDImporter Error: " + errorMessage);
+		return false;
+	}
+}
+
 bool KRAPSDImporter::exportAllKRALayers()
 {
 	return true;
@@ -262,30 +311,9 @@ bool KRAPSDImporter::exportAllKRALayers()
 
 bool KRAPSDImporter::exportAllPSDLayers()
 {
-	return true;
-}
 
-bool KRAPSDImporter::exportAllLayers()
-{
-	if (verboseMode) 
-	{
-		Godot::print("Exporting all layers..");
-	}
-
-    /* Find the real path */
-    rawFilePath = ProjectSettings::get_singleton()->globalize_path(rawFilePath.strip_edges());
 	/* Convert to the necessary std::wstring */
 	const std::wstring srcPath = rawFilePath.unicode_str();
-
-	/* Find the real path */
-    targetFolderPath = ProjectSettings::get_singleton()->globalize_path(targetFolderPath.strip_edges());
-	/* Check if this folder exists */
-	Directory *dir = Directory::_new();
-	if (!dir->dir_exists(targetFolderPath)) {
-		errorMessage = "Target directory does not exist!";
-		Godot::print("GDPSDImporter Error: " + errorMessage);
-		return false;
-	}
 	/* Convert to the necessary std::wstring */
 	const std::wstring targetFolder = targetFolderPath.unicode_str();
 
