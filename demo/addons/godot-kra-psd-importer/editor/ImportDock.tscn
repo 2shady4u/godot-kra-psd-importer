@@ -3,8 +3,6 @@
 [ext_resource path="res://addons/godot-kra-psd-importer/editor/import_dock.gd" type="Script" id=1]
 [ext_resource path="res://addons/godot-kra-psd-importer/editor/packed_scene_creator.gd" type="Script" id=2]
 
-
-
 [sub_resource type="Image" id=3]
 data = {
 "data": PoolByteArray( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ),
@@ -105,7 +103,7 @@ size_flags_horizontal = 3
 margin_right = 839.0
 margin_bottom = 24.0
 size_flags_horizontal = 3
-text = "res://addons/godot-kra-psd-importer/examples/Sample.psd"
+text = "res://addons/godot-kra-psd-importer/examples/PSDExample.psd"
 editable = false
 
 [node name="RawFileDialogButton" type="Button" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer/RawFileContainer"]
@@ -186,10 +184,32 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="ResizeLabel" type="Label" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer"]
+[node name="MirrorUniverseLabel" type="Label" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer"]
 margin_top = 108.0
-margin_right = 85.0
+margin_right = 100.0
 margin_bottom = 132.0
+size_flags_horizontal = 0
+size_flags_vertical = 1
+text = "Mirror Universe"
+align = 1
+valign = 1
+
+[node name="MirrorUniverseCheckBox" type="CheckBox" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer"]
+margin_left = 566.0
+margin_top = 108.0
+margin_right = 590.0
+margin_bottom = 132.0
+size_flags_horizontal = 4
+pressed = true
+align = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ResizeLabel" type="Label" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer"]
+margin_top = 136.0
+margin_right = 85.0
+margin_bottom = 160.0
 size_flags_horizontal = 0
 size_flags_vertical = 1
 text = "Resize Factor"
@@ -197,9 +217,9 @@ valign = 1
 
 [node name="ResizeContainer" type="HBoxContainer" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer"]
 margin_left = 143.0
-margin_top = 108.0
+margin_top = 136.0
 margin_right = 1014.0
-margin_bottom = 132.0
+margin_bottom = 160.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -222,28 +242,6 @@ margin_bottom = 24.0
 text = "1"
 align = 1
 editable = false
-
-[node name="MirrorStructureLabel" type="Label" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer"]
-margin_top = 136.0
-margin_right = 94.0
-margin_bottom = 160.0
-size_flags_horizontal = 0
-size_flags_vertical = 1
-text = "Mirror Settings"
-align = 1
-valign = 1
-
-[node name="MirrorStructureCheckBox" type="CheckBox" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer"]
-margin_left = 566.0
-margin_top = 136.0
-margin_right = 590.0
-margin_bottom = 160.0
-size_flags_horizontal = 4
-pressed = true
-align = 1
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="ErrorLabel" type="Label" parent="VSplitContainer/MainVBoxContainer"]
 margin_top = 422.0

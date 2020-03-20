@@ -1,3 +1,10 @@
+// ############################################################################ #
+// Copyright © 2020 Piet Bronders & Jeroen De Geeter <piet.bronders@gmail.com>
+// Copyright © 2020 Gamechuck d.o.o. <gamechuckdev@gmail.com>
+// Licensed under the MIT License.
+// See LICENSE in the project root for license information.
+// ############################################################################ #
+
 #pragma once
 
 #include "KraPch.h"
@@ -5,18 +12,19 @@
 
 KRA_NAMESPACE_BEGIN
 
-/// \ingroup Types
-/// \class Document
-/// \brief A struct storing the document-wide information of a .KRA file.
-/// \sa Section
+// KraTile is a structure in which the general properties of a KRA document/archive are stored.
+// Each KRA archive consists of one or more layers (stored in a vector) that contain actual data.
 struct KraDocument
 {
-    unsigned int width;							///< The width of the document.
-    unsigned int height;						///< The height of the document.
-    unsigned int colorSpace = COLOR_SPACE::RGBA;			    ///< The number of channels stored in the document, including any additional alpha channels.
+	unsigned int width;
+	unsigned int height;
+	unsigned int channelCount;
+
     const char* name;
 
-    std::vector<KraLayer> layers;
+    std::vector<KraLayer*> layers;
+
+	bool corruptionFlag = false;
 };
 
 KRA_NAMESPACE_END

@@ -1,74 +1,102 @@
+// ############################################################################ #
+// Copyright © 2020 Piet Bronders & Jeroen De Geeter <piet.bronders@gmail.com>
+// Copyright © 2020 Gamechuck d.o.o. <gamechuckdev@gmail.com>
+// Licensed under the MIT License.
+// See LICENSE in the project root for license information.
+// ############################################################################ #
+
 #include "KraExportDocument.h"
 #include <iostream>
 
 KRA_NAMESPACE_BEGIN
 
-struct KraExtents
-{
-    int min_x, max_x, min_y, max_y = 0;
-
-};
-
 // ---------------------------------------------------------------------------------------------------------------------
+// Take all the layers and their tiles and construct/compose the complete image!
 // ---------------------------------------------------------------------------------------------------------------------
-std::vector<KraExportedLayer> ExportKraDocument(KraDocument document)
+std::vector<KraExportedLayer*> ExportKraDocument(KraDocument* document)
 {
 
-    std::vector<KraExportedLayer> exportedLayers;
-    for (auto const& layer : document.layers){
+    std::vector<KraExportedLayer*> exportedLayers;
+    for (auto const& layer : document->layers){
 
-        KraExportedLayer exportedLayer = {};
-        size_t composedDataSize = 0;
+        KraExportedLayer* exportedLayer = new KraExportedLayer;
+        /* Copy all important properties immediately */
+        exportedLayer->name = layer->name;
+        exportedLayer->channelCount = layer->channelCount;
+        exportedLayer->x = layer->x;
+        exportedLayer->y = layer->y;
+        exportedLayer->opacity = layer->opacity;
+        exportedLayer->isVisible = layer->isVisible;
 
-        KraExtents extents = {};
-        // find the extents of the layer canvas.
-        for (auto const& tile : layer.tiles)
+        /*Initialize the extents of this layer to 0 */
+        exportedLayer->left = 0;
+        exportedLayer->right = 0;
+        exportedLayer->top = 0;
+        exportedLayer->bottom = 0;
+
+        /* find the extents of the layer canvas */
+        for (auto const& tile : layer->tiles)
         {
-            if (tile.offsetX < extents.min_x)
+            if (tile->left < exportedLayer->left)
             {
-                extents.min_x = tile.offsetX;
+                exportedLayer->left = tile->left;
             }
-            if (tile.offsetX + (int)tile.tileWidth > extents.max_x)
+            if (tile->left + (int32_t)tile->tileWidth > exportedLayer->right)
             {
-                extents.max_x = tile.offsetX + (int)tile.tileWidth;
-            }
-
-            if (tile.offsetY < extents.min_y)
-            {
-                extents.min_y = tile.offsetY;
-            }
-            if (tile.offsetY + (int)tile.tileHeight > extents.max_y)
-            {
-                extents.max_y = tile.offsetY + (int)tile.tileHeight;
+                exportedLayer->right = tile->left + (int32_t)tile->tileWidth;
             }
 
+            if (tile->top < exportedLayer->top)
+            {
+                exportedLayer->top = tile->top;
+            }
+            if (tile->top + (int32_t)tile->tileHeight > exportedLayer->bottom)
+            {
+                exportedLayer->bottom = tile->top + (int32_t)tile->tileHeight;
+            }
         }
-        exportedLayer.layerWidth = extents.max_x - extents.min_x;
-        exportedLayer.layerHeight = extents.max_y - extents.min_y;
+        unsigned int layerHeight = (unsigned int)(exportedLayer->bottom - exportedLayer->top);
+		unsigned int layerWidth = (unsigned int)(exportedLayer->right - exportedLayer->left);
 
-        KraTile referenceTile = layer.tiles[0];
-        unsigned int numberOfColumns = (unsigned int)exportedLayer.layerWidth/referenceTile.tileWidth;
-        unsigned int numberOfRows = (unsigned int)exportedLayer.layerHeight/referenceTile.tileHeight;
-        composedDataSize = numberOfColumns*numberOfRows*referenceTile.decompressedLength;
+        /* Get a reference tile and extract the number of horizontal and vertical tiles */
+        KraTile* referenceTile = layer->tiles[0];
+        unsigned int numberOfColumns = layerWidth/referenceTile->tileWidth;
+        unsigned int numberOfRows = layerHeight/referenceTile->tileHeight;
+        size_t composedDataSize = numberOfColumns*numberOfRows*referenceTile->decompressedLength;
 
+        printf("(Exporting Document) Exported Layer '%ws' properties are extracted and have following values:\n", exportedLayer->name);
+		printf("(Exporting Document)  	>> numberOfColumns = %i\n", numberOfColumns);
+		printf("(Exporting Document)  	>> numberOfRows = %i\n", numberOfRows);
+		printf("(Exporting Document)  	>> layerWidth = %i\n", layerWidth);
+		printf("(Exporting Document)  	>> layerHeight = %i\n", layerHeight);
+        printf("(Exporting Document)  	>> top = %i\n", exportedLayer->top);
+		printf("(Exporting Document)  	>> bottom = %i\n", exportedLayer->bottom);
+        printf("(Exporting Document)  	>> left = %i\n", exportedLayer->left);
+		printf("(Exporting Document)  	>> right = %i\n", exportedLayer->right);
+        printf("(Exporting Document)  	>> composedDataSize = %i\n", static_cast<int>(composedDataSize));
+
+        /* Allocate space for the output data! */
         uint8_t* composedData = (uint8_t*) malloc(composedDataSize);
 
-        for (auto const& tile : layer.tiles)
+        /* IMPORTANT: Not all the tiles exist! */
+        /* Empty tiles (containing full ALPHA) are not added as tiles! */
+        /* Now we have to construct the data in such a way that all tiles are in the correct positions */
+        for (auto const& tile : layer->tiles)
         {
-            int currentOffsetY = tile.offsetY - extents.min_y;
-            int currentOffsetX = tile.offsetX - extents.min_x;
-            for (int rowIndex = 0; rowIndex < (int)tile.tileHeight; rowIndex++)
+            int currentNormalizedTop = tile->top - exportedLayer->top;
+            int currentNormalizedLeft = tile->left - exportedLayer->left;
+            for (int rowIndex = 0; rowIndex < (int)tile->tileHeight; rowIndex++)
             {
-                uint8_t* destination = composedData + tile.pixelSize*tile.tileWidth*rowIndex*numberOfColumns;
-                destination += tile.pixelSize*currentOffsetX;
-                destination += tile.pixelSize*tile.tileWidth*currentOffsetY*numberOfColumns;
-                uint8_t* source = tile.data + tile.pixelSize*tile.tileWidth*rowIndex;
-                size_t size = tile.pixelSize*tile.tileWidth;
+                uint8_t* destination = composedData + tile->pixelSize*tile->tileWidth*rowIndex*numberOfColumns;
+                destination += tile->pixelSize*currentNormalizedLeft;
+                destination += tile->pixelSize*tile->tileWidth*currentNormalizedTop*numberOfColumns;
+                uint8_t* source = tile->data + tile->pixelSize*tile->tileWidth*rowIndex;
+                size_t size = tile->pixelSize*tile->tileWidth;
+                /* Copy the row of the tile to the composed image */
                 memcpy(destination, source, size);
             }
         }
-        exportedLayer.data = composedData;
-
+        exportedLayer->data = composedData;
         exportedLayers.push_back(exportedLayer);
 
     }

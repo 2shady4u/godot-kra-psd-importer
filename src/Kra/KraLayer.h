@@ -1,27 +1,36 @@
+// ############################################################################ #
+// Copyright © 2020 Piet Bronders & Jeroen De Geeter <piet.bronders@gmail.com>
+// Copyright © 2020 Gamechuck d.o.o. <gamechuckdev@gmail.com>
+// Licensed under the MIT License.
+// See LICENSE in the project root for license information.
+// ############################################################################ #
+
 #pragma once
 
 #include "KraPch.h"
 #include "KraTile.h"
-#include <vector>
 
 KRA_NAMESPACE_BEGIN
 
-/// \ingroup Types
-/// \class Document
-/// \brief A struct storing the document-wide information of a .KRA file.
-/// \sa Section
+// KraLayer is a structure in which general properties for a KRA layer are stored.
+// The actual image data is found in the tiles vector.
 struct KraLayer
 {
-    unsigned int colorSpaceName;			    ///< The number of channels stored in the document, including any additional alpha channels.
-    unsigned int positionX;
-    unsigned int positionY;
-    unsigned int nodeType; //paintlayer
-    unsigned int opacity;
-    bool visible;
-    const char* name;
-    const char* fileName;
+    const wchar_t* name;
+    const char* filename;
 
-    std::vector<KraTile> tiles;
+    unsigned int channelCount;
+    unsigned int x;
+    unsigned int y;
+
+    uint8_t opacity;
+
+    uint32_t type;
+    bool isVisible;
+
+    std::vector<KraTile*> tiles;
+
+    bool corruptionFlag = false;
 };
 
 KRA_NAMESPACE_END

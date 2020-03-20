@@ -1,26 +1,34 @@
+// ############################################################################ #
+// Copyright © 2020 Piet Bronders & Jeroen De Geeter <piet.bronders@gmail.com>
+// Copyright © 2020 Gamechuck d.o.o. <gamechuckdev@gmail.com>
+// Licensed under the MIT License.
+// See LICENSE in the project root for license information.
+// ############################################################################ #
+
 #pragma once
 
 #include "KraPch.h"
 
 KRA_NAMESPACE_BEGIN
 
-/// \ingroup Types
-/// \class Document
-/// \brief A struct storing the document-wide information of a .KRA file.
-/// \sa Section
+// KraExportedLayer is a structure in which the decompressed binary data for the entire image is saved.
+// Needless to say... these structures can become quite big...
 struct KraExportedLayer
 {
-    unsigned int colorSpaceName;			    ///< The number of channels stored in the document, including any additional alpha channels.
-    unsigned int positionX;
-    unsigned int positionY;
+    const wchar_t* name;
 
-    unsigned int layerWidth = 0;
-    unsigned int layerHeight = 0;
+    unsigned int channelCount;
+    unsigned int x;
+    unsigned int y;
 
-    unsigned int nodeType; //paintlayer
-    unsigned int opacity;
-    bool visible;
-    const char* name;
+    int32_t top;
+	int32_t left;
+	int32_t bottom;
+	int32_t right;
+
+    uint8_t opacity;
+
+    bool isVisible;
 
     uint8_t* data;
 };

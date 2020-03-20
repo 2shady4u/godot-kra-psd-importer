@@ -19,13 +19,15 @@ func start_mirorred_layer_structure(structure_name : String):
 	_mirrored_layer_structure = Node2D.new()
 	_mirrored_layer_structure.name = structure_name
 	_is_creating_packed_scene = true
-	print("	...Starting mirrored layer structure with name '{0}'.".format([structure_name]))
+	print("(PackedSceneCreator) Starting mirrored layer structure with name '{0}'.".format([structure_name]))
 	_textures_array = []
 
 func _register_texture_from_importer(texture_properties : Dictionary):
 	if _is_creating_packed_scene and texture_properties.has("path"):
-		print("	...Registering texture with path '{0}'.".format([texture_properties.path]))
+		print("(PackedSceneCreator) Registering texture with path '{0}'.".format([texture_properties.path]))
 		_textures_array.push_back(texture_properties)
+	else:
+		print("PackedSceneCreator WARNING: Texture did not have path...ignoring call!")
 
 func finish_mirorred_layer_structure() -> int:
 	if _is_creating_packed_scene:
@@ -53,7 +55,7 @@ func finish_mirorred_layer_structure() -> int:
 			layer_structure_path = "res://{0}.tscn".format([_mirrored_layer_structure.name])
 			#dir.remove(layer_structure_path)
 			ResourceSaver.save(layer_structure_path, scene)
-			print("	...Finishing mirrored layer structure. (saved at '{0}')".format([layer_structure_path]))
+			print("(PackedSceneCreator) Finishing mirrored layer structure. (saved at '{0}')".format([layer_structure_path]))
 		else:
 			push_error("PackedSceneCreator Error: Packing the mirrored layer structure failed!")
 		_is_creating_packed_scene = false

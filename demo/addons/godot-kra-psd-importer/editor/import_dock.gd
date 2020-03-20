@@ -17,11 +17,12 @@ var editor_plugin : EditorPlugin = null
 
 var _editor_file_dialog := EditorFileDialog.new()
 var _data_fields := {
-	"raw_file_path": "res://addons/godot-kra-psd-importer/examples/Sample.psd", 
+	"raw_file_path": "res://addons/godot-kra-psd-importer/examples/PSDExample.psd", 
 	"target_folder_path": "res://",
 	"export_type": EXPORT_TYPE.PNG,
 	"crop_to_canvas": true,
-	"resize_factor": 1
+	"resize_factor": 1,
+	"mirror_universe": true
 	}
 var _is_everything_connected := false
 var _verbose_mode := true
@@ -34,6 +35,7 @@ onready var _target_folder_line_edit : LineEdit
 onready var _target_folder_dialog_button : Button
 onready var _export_type_option_button : OptionButton
 onready var _crop_check_box : CheckBox
+onready var _mirror_check_box : CheckBox
 onready var _resize_h_slider : HSlider
 onready var _resize_line_edit : LineEdit
 
@@ -83,6 +85,10 @@ func _process(_delta : float):
 		_crop_check_box = grid_container.get_node("CropCheckBox")
 		_crop_check_box.pressed = _data_fields.crop_to_canvas
 		_crop_check_box.connect("toggled", self, "_on_crop_check_box_toggled")
+
+		_mirror_check_box = grid_container.get_node("MirrorUniverseCheckBox")
+		_mirror_check_box.pressed = _data_fields.mirror_universe
+		_mirror_check_box.connect("toggled", self, "_on_mirror_check_box_toggled")
 
 		var resize_container := grid_container.get_node("ResizeContainer")
 		_resize_h_slider = resize_container.get_node("ResizeHSlider")
@@ -142,8 +148,12 @@ func _on_item_selected(id : int):
 	_data_fields.export_type = id
 
 func _on_crop_check_box_toggled(button_pressed : bool):
-	if _verbose_mode: print("CheckBox state toggled...'{0}'".format([button_pressed]))
+	if _verbose_mode: print("Cropping CheckBox state toggled...'{0}'".format([button_pressed]))
 	_data_fields.crop_to_canvas = button_pressed
+
+func _on_mirror_check_box_toggled(button_pressed : bool):
+	if _verbose_mode: print("Mirror CheckBox state toggled...'{0}'".format([button_pressed]))
+	_data_fields.mirror_universe = button_pressed
 
 func _on_resize_h_slider_value_changed(value : float):
 	_data_fields.resize_factor = value
@@ -166,11 +176,13 @@ func _import_button_pressed() -> void:
 	kra_psd_importer.export_type = _data_fields.export_type
 	kra_psd_importer.crop_to_canvas = _data_fields.crop_to_canvas
 	kra_psd_importer.resize_factor = _data_fields.resize_factor
+	kra_psd_importer.mirror_universe = _data_fields.mirror_universe
 	kra_psd_importer.verbose_mode = _verbose_mode
 
-	kra_psd_importer.connect("texture_created", _packed_scene_creator, "_register_texture_from_importer")
-	var structure_name : String = _data_fields.raw_file_path.get_basename().get_file()
-	_packed_scene_creator.start_mirorred_layer_structure(structure_name)
+	if _data_fields.mirror_universe:
+		kra_psd_importer.connect("texture_created", _packed_scene_creator, "_register_texture_from_importer")
+		var structure_name : String = _data_fields.raw_file_path.get_basename().get_file()
+		_packed_scene_creator.start_mirorred_layer_structure(structure_name)
 
 	var success : bool = kra_psd_importer.export_all_layers()
 
@@ -184,6 +196,7 @@ func _import_button_pressed() -> void:
 	_error_label.update()
 	_import_button.disabled = false
 
-	var result : int = _packed_scene_creator.finish_mirorred_layer_structure()
-	if result == OK:
-		editor_plugin.open_scene_from_path(_packed_scene_creator.layer_structure_path)
+	if _data_fields.mirror_universe:
+		var result : int = _packed_scene_creator.finish_mirorred_layer_structure()
+		if result == OK:
+			editor_plugin.open_scene_from_path(_packed_scene_creator.layer_structure_path)
