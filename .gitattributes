@@ -1,3 +1,4 @@
 * linguist-vendored
 *.cpp linguist-vendored=false
 *.psd filter=lfs diff=lfs merge=lfs -text
+*.kra filter=lfs diff=lfs merge=lfs -text

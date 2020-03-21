@@ -112,6 +112,7 @@ void DestroyKraDocument(KraDocument*& document)
 		{
 			KraTile* tile = layer->tiles.back();
 			layer->tiles.pop_back();
+			free(tile->data);
 			delete tile;
 		}
 		document->layers.pop_back();

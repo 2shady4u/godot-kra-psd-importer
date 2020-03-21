@@ -119,6 +119,7 @@ void DestroyKraExportLayers(std::vector<KraExportedLayer*> exportedLayers)
 	{
 		KraExportedLayer* layer = exportedLayers.back();
 		exportedLayers.pop_back();
+        free(layer->data);
 		delete layer;
 	}
 }
