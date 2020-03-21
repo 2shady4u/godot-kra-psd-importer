@@ -1,0 +1,14 @@
+[general]
+
+singleton=false
+load_once=true
+symbol_prefix="godot_"
+reloadable=false
+
+[entry]
+
+Windows.64="res://addons/godot-kra-psd-importer/bin/win64/lidgdkrapsdimporter.dll"
+
+[dependencies]
+
+Windows.64=[  ]
