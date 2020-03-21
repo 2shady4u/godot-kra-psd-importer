@@ -10,6 +10,10 @@
 *.pdb
 *.lib
 
+# Krita backup files #
+######################
+*.kra~
+
 # OS generated files #
 ######################
 .DS_Store
