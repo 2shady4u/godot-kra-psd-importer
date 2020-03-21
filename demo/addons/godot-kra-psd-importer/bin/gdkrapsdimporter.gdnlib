@@ -7,7 +7,7 @@ reloadable=false
 
 [entry]
 
-Windows.64="res://addons/godot-psd-importer/bin/win64/lidgdpsdimporter.dll"
+Windows.64="res://addons/godot-kra-psd-importer/bin/win64/lidgdkrapsdimporter.dll"
 
 [dependencies]
 

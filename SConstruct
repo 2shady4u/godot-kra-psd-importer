@@ -11,12 +11,13 @@ opts.Add(EnumVariable('target', "Compilation target", 'debug', ['d', 'debug', 'r
 opts.Add(EnumVariable('platform', "Compilation platform", '', ['', 'windows', 'x11', 'linux', 'osx']))
 opts.Add(EnumVariable('p', "Compilation target, alias for 'platform'", '', ['', 'windows', 'x11', 'linux', 'osx']))
 opts.Add(BoolVariable('use_llvm', "Use the LLVM / Clang compiler", 'no'))
-opts.Add(PathVariable('target_path', 'The path where the lib is installed.', 'demo/addons/godot-psd-importer/bin/'))
-opts.Add(PathVariable('target_name', 'The library name.', 'lidgdpsdimporter', PathVariable.PathAccept))
+opts.Add(PathVariable('target_path', 'The path where the lib is installed.', 'demo/addons/godot-kra-psd-importer/bin/'))
+opts.Add(PathVariable('target_name', 'The library name.', 'lidgdkrapsdimporter', PathVariable.PathAccept))
 
 # Local dependency paths, adapt them to your setup
 godot_headers_path = "godot-cpp/godot_headers/"
 cpp_bindings_path = "godot-cpp/"
+zipper_bindings_path = "zipper/"
 magick_bindings_path = 'C:/Program Files/ImageMagick-7.0.10-Q16/'
 cpp_library = "libgodot-cpp"
 
@@ -81,9 +82,9 @@ else:
 
 cpp_library += '.' + str(bits)
 
-# make sure our binding library is properly includes
+# make sure our binding library is properly included
 env.Append(CPPPATH=['.', 
-godot_headers_path, 
+godot_headers_path,
 cpp_bindings_path + 'include/', 
 cpp_bindings_path + 'include/core/', 
 cpp_bindings_path + 'include/gen/', 
@@ -91,15 +92,17 @@ magick_bindings_path,
 magick_bindings_path + 'include/',
 magick_bindings_path + 'include/Magick++/',
 magick_bindings_path + 'include/MagickCore/',
-magick_bindings_path + 'include/MagickWand/'])
-env.Append(LIBPATH=[cpp_bindings_path + 'bin/', magick_bindings_path + 'lib/'])
-env.Append(LIBS=[cpp_library, 'CORE_RL_Magick++_', 'CORE_RL_MagickWand_', 'CORE_RL_MagickCore_'])
+magick_bindings_path + 'include/MagickWand/',
+zipper_bindings_path + 'zipper/'])
+#zipper_bindings_path + 'zipper/tps/'])
+env.Append(LIBPATH=[cpp_bindings_path + 'bin/', magick_bindings_path + 'lib/', zipper_bindings_path + 'build/Release/'])
+env.Append(LIBS=[cpp_library, 'CORE_RL_Magick++_', 'CORE_RL_MagickWand_', 'CORE_RL_MagickCore_', "Zipper"])
 
 print(cpp_bindings_path)
 
 # tweak this if you want to use different folders, or more folders, to store your source code in.
 env.Append(CPPPATH=['src/'])
-sources = [Glob('src/*.cpp'), Glob('src/exporters/*.cpp'), Glob('src/Psd/*.cpp'), 'src/Psd/Psdminiz.c']
+sources = [Glob('src/*.cpp'), Glob('src/Psd/*.cpp'), Glob('src/Kra/*.cpp'), 'src/tinyxml2/tinyxml2.cpp', 'src/Psd/Psdminiz.c']
 
 library = env.SharedLibrary(target=env['target_path'] + env['target_name'] , source=sources)
 

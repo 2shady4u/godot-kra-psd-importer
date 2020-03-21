@@ -11,7 +11,7 @@ extends EditorPlugin
 var dock = null
 
 func _enter_tree():
-	dock = preload("res://addons/godot-psd-importer/editor/ImportDock.tscn").instance()
+	dock = preload("res://addons/godot-kra-psd-importer/editor/ImportDock.tscn").instance()
 	dock.editor_plugin = self
 	add_control_to_dock(DOCK_SLOT_LEFT_UR, dock)
 
