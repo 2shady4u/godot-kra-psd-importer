@@ -16,7 +16,7 @@
    version="1.1"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
    sodipodi:docname="godot-psd-importer-banner.svg"
-   inkscape:export-filename="C:\Users\piet.bronders\Documents\Gitkraken\GloomInc\godot-psd-importer\icon\godot-psd-importer-banner.png"
+   inkscape:export-filename="C:\Users\piet.bronders\Documents\Repositories\GloomInc\godot-kra-psd-importer\icon\godot-kra-psd-importer-banner.png"
    inkscape:export-xdpi="32"
    inkscape:export-ydpi="32">
   <defs
@@ -72,8 +72,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.24748737"
-     inkscape:cx="2220.7895"
-     inkscape:cy="811.1257"
+     inkscape:cx="2214.7286"
+     inkscape:cy="318.17125"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -123,28 +123,28 @@
          id="flowPara858" /></flowRoot>    <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:21.33333397px;line-height:1.25;font-family:Helvetica;-inkscape-font-specification:Helvetica;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-       x="3437.3179"
-       y="522.04321"
+       x="3409.3179"
+       y="528.00696"
        id="text844"><tspan
          sodipodi:role="line"
          id="tspan842"
-         x="3437.3179"
-         y="522.04321"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:320px;font-family:'Droid Sans';-inkscape-font-specification:'Droid Sans';text-align:center;text-anchor:middle">Godot PSD Importer</tspan><tspan
+         x="3409.3179"
+         y="528.00696"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:266.66665649px;font-family:'Droid Sans';-inkscape-font-specification:'Droid Sans';text-align:center;text-anchor:middle">Godot KRA/PSD Importer</tspan><tspan
          sodipodi:role="line"
-         x="3437.3179"
-         y="808.62891"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:192px;font-family:'Droid Sans';-inkscape-font-specification:'Droid Sans';text-align:center;text-anchor:middle"
+         x="3409.3179"
+         y="769.19116"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:162.66667175px;font-family:'Droid Sans';-inkscape-font-specification:'Droid Sans';text-align:center;text-anchor:middle"
          id="tspan848">GDNative wrapper for Godot 3.1+</tspan></text>
     <image
-       sodipodi:absref="C:\Users\piet.bronders\Documents\Gitkraken\GloomInc\godot-psd-importer\icon\godot-psd-importer-icon.png"
+       sodipodi:absref="C:\Users\piet.bronders\Documents\Repositories\GloomInc\godot-kra-psd-importer\icon\godot-psd-importer-icon.png"
        xlink:href="godot-psd-importer-icon.png"
-       y="-73.163956"
-       x="-1947.434"
-       id="image926"
-       preserveAspectRatio="none"
-       height="1280"
+       transform="scale(-1,1)"
        width="1280"
-       transform="scale(-1,1)" />
+       height="1280"
+       preserveAspectRatio="none"
+       id="image926"
+       x="-1947.434"
+       y="-73.163963" />
   </g>
 </svg>
