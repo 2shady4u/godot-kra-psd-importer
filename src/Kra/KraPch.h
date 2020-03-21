@@ -12,6 +12,7 @@
 #include <stddef.h>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 // Enum to define the layer type of the Kra layer.
 typedef enum

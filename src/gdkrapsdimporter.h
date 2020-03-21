@@ -47,7 +47,7 @@
 #include "Kra/KraDocument.h"
 #include "Kra/KraExportedLayer.h"
 #include "Kra/KraParseDocument.h"
-#include "Kra/KraExportDocument.h"
+#include "Kra/KraExport.h"
 
 PSD_PUSH_WARNING_LEVEL(0)
 // disable annoying warning caused by xlocale(337): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc

@@ -15,6 +15,8 @@
 
 KRA_NAMESPACE_BEGIN
 
-std::vector<KraExportedLayer*> ExportKraDocument(KraDocument* document);
+std::vector<KraExportedLayer*> CreateKraExportLayers(KraDocument* document);
+
+void DestroyKraExportLayers(std::vector<KraExportedLayer*> exportedLayers);
 
 KRA_NAMESPACE_END

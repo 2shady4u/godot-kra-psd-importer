@@ -5,18 +5,18 @@
 // See LICENSE in the project root for license information.
 // ############################################################################ #
 
-#include "KraExportDocument.h"
-#include <iostream>
+#include "KraExport.h"
 
 KRA_NAMESPACE_BEGIN
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Take all the layers and their tiles and construct/compose the complete image!
 // ---------------------------------------------------------------------------------------------------------------------
-std::vector<KraExportedLayer*> ExportKraDocument(KraDocument* document)
+std::vector<KraExportedLayer*> CreateKraExportLayers(KraDocument* document)
 {
 
     std::vector<KraExportedLayer*> exportedLayers;
+    /* Go through all the layers and add them to the exportedLayers vector */
     for (auto const& layer : document->layers){
 
         KraExportedLayer* exportedLayer = new KraExportedLayer;
@@ -100,8 +100,23 @@ std::vector<KraExportedLayer*> ExportKraDocument(KraDocument* document)
         exportedLayers.push_back(exportedLayer);
 
     }
+    /* Reverse the direction of the vector, so that order is preserved in the Godot mirror universe */
+    std::reverse(exportedLayers.begin(),exportedLayers.end());
     return exportedLayers;
 
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Clean up memory allocation from the heap.
+// ---------------------------------------------------------------------------------------------------------------------
+void DestroyKraExportLayers(std::vector<KraExportedLayer*> exportedLayers)
+{
+	while (exportedLayers.size() > 0)
+	{
+		KraExportedLayer* layer = exportedLayers.back();
+		exportedLayers.pop_back();
+		delete layer;
+	}
 }
 
 KRA_NAMESPACE_END

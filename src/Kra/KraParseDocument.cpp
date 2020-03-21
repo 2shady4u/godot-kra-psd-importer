@@ -101,10 +101,23 @@ KraDocument* CreateKraDocument(const std::wstring &filename)
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
+// Cleans up all allocated memory on the heap.
 // ---------------------------------------------------------------------------------------------------------------------
 void DestroyKraDocument(KraDocument*& document)
 {
-
+	while (document->layers.size() > 0)
+	{
+		KraLayer* layer = document->layers.back();
+		while (layer->tiles.size() > 0)
+		{
+			KraTile* tile = layer->tiles.back();
+			layer->tiles.pop_back();
+			delete tile;
+		}
+		document->layers.pop_back();
+		delete layer;
+	}
+	delete document;
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

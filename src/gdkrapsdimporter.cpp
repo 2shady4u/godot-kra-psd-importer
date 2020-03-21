@@ -208,7 +208,7 @@ bool KRAPSDImporter::ExportAllKRALayers()
 
 	KraDocument* document = CreateKraDocument(rawFile);
 
-	std::vector<KraExportedLayer*> exportedLayers = ExportKraDocument(document);
+	std::vector<KraExportedLayer*> exportedLayers = CreateKraExportLayers(document);
 
 	for (auto const& layer : exportedLayers)
 	{
@@ -232,10 +232,14 @@ bool KRAPSDImporter::ExportAllKRALayers()
 		/* TODO: we should check if the file actually exists! */
 		if (mirrorUniverse)
 		{
+			/* Emit the texture properties to Godot if a mirror universe is requested */
 			bool success = EmitKRATextureProperties(filename, layer);
 		}
+
 	}
 
+	/* Clean up the memory allocation of our structs */
+	DestroyKraExportLayers(exportedLayers);
 	DestroyKraDocument(document);
 
 	return true;
