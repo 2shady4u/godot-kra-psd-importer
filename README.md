@@ -1,10 +1,10 @@
-![Godot PSD Importer banner](icon/godot-psd-importer-banner.png?raw=true "Godot PSD Importer banner")
+![Godot KRA/PSD Importer banner](icon/godot-kra-psd-importer-banner.png?raw=true "Godot KRA/PSD Importer banner")
 
 # godot-psd-importer
 
 **!!!DISCLAIMER !!! WORK IN PROGRESS**
 
-GDNative wrapper for Importing PSD-files into Godot 3.1+, making it possible to significantly speed up development when working with PSD-files. Additionally, it does not require any additional compilation or mucking about with build scripts.
+GDNative wrapper for Importing KRA- and PSD-files into Godot 3.1+, making it possible to significantly speed up development. Additionally, it does not require any additional compilation or mucking about with build scripts.
 
 Currently the plugin is able to export to both PNG and TGA image formats.
 
@@ -12,6 +12,8 @@ Currently the plugin is able to export to both PNG and TGA image formats.
 - Windows
 
 This is an unfortunate constraint of the [PSD Library SDK](https://molecular-matters.com/products_psd_sdk.html), a library that is used to make this plugin work. Efforts to make this library accessible in Linux are ongoing.
+
+The KRA-component of this plugin might be released separately, for other platforms than Windows, in the future though.
 
 ### Table Of Contents
 
@@ -26,7 +28,7 @@ This is an unfortunate constraint of the [PSD Library SDK](https://molecular-mat
 # <a name="roadmap">Roadmap</a>
 
 - [x] Export to PNG
-- [ ] Support for Krita *.kra*-files
+- [x] Support for Krita *.kra*-files
 - [ ] Creation of a PackedScene that mirrors the PSD/KRA layer structure.
 - [ ] Addition of metadata interface to create advanced functionalities. (parallax, tweening, ...)
 
