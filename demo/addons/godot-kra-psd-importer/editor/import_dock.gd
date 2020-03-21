@@ -167,6 +167,7 @@ func _import_button_pressed() -> void:
 	_error_label.set("custom_colors/font_color", Color.white)
 	_error_label.update()
 	
+	# Make sure it is actually updated!
 	yield(get_tree(), "idle_frame")
 	yield(VisualServer, "frame_post_draw")
 	

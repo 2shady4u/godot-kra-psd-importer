@@ -509,7 +509,9 @@ bool KRAPSDImporter::EmitKRATextureProperties(std::wstring filename, KraExported
 {
 	Dictionary textureProperties = Dictionary();
 	textureProperties["path"] = String(filename.c_str());
-	if (cropToCanvas == false)
+	/* Cropping to the canvas doesn't work yet for KRA-files! */
+	/* This variable doesn't have any effect yet! */
+	if (cropToCanvas == false || true)
 	{
 		textureProperties["position"] = Vector2((real_t)layer->left, (real_t)layer->top);
 	}

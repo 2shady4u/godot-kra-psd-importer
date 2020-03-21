@@ -77,6 +77,10 @@ std::vector<KraExportedLayer*> CreateKraExportLayers(KraDocument* document)
 
         /* Allocate space for the output data! */
         uint8_t* composedData = (uint8_t*) malloc(composedDataSize);
+        /* I initialize all these elements to zero to avoid empty tiles from being filled with junk */
+        /* Problem might be that this takes quite a lot of time... */
+        /* TODO: Only the empty tiles should be initialized to zero! */
+        memset(composedData, 0, composedDataSize);
 
         /* IMPORTANT: Not all the tiles exist! */
         /* Empty tiles (containing full ALPHA) are not added as tiles! */

@@ -41,7 +41,6 @@ func finish_mirorred_layer_structure() -> int:
 			sprite.texture = load(path)
 			
 			sprite.position = texture.get("position", Vector2.ZERO)
-			print(sprite.texture.get_size()/2)
 			sprite.position = sprite.position + sprite.texture.get_size()/2
 			sprite.name = path.get_basename().get_file()
 
