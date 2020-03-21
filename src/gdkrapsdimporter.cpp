@@ -159,7 +159,7 @@ bool KRAPSDImporter::ExportAllLayers()
 	/* Find the real path */
 	targetFolderPath = ProjectSettings::get_singleton()->globalize_path(targetFolderPath.strip_edges());
 	/* Check if the target folder exists */
-	Directory *dir = Directory::_new();
+	Ref<Directory> dir = Directory::_new();
 	if (!dir->dir_exists(targetFolderPath))
 	{
 		errorMessage = "Target directory does not exist!";
