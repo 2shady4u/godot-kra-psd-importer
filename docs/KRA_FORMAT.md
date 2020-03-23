@@ -23,7 +23,18 @@ KRAExample/
 Of most importance are the 'maindoc.xml' file, containing information on document and layer properties and 
 the 'layer2' binary file, which contains the compressed pixel data
 
-## maindoc.xml
+Krita saves the layer in a special format that might, at first glance, not be obvious. Let's take for example a layer named "green" which, when seen in Krita has following form and placement on the image canvas:
+
+![Tile Visual Structure](tile-visual-structure.png?raw=true "Tile Visual Structure")
+
+As can be seen, the layer boundaries extend outside of the image canvas. Also not all parts of the image canvas contain a part of the "green" layer.
+
+In the case of Krita, the image is subdivided in different regions called "tiles" which, by default, have dimensions 64 px x 64 px.
+Each of these tiles is defined by its topleft coordinate in the image. When saving, Krita takes each of the layers and ONLY saves the tiles that contain any layer data. In the case of this example Krita would save the 5 tiles with coordinates: [0, 0], [64, 0], [0, 64], [64, 64] and [64, 128]. Thus even though some tiles might only contain a single pixel they are still saved regardless.
+
+Importing this tile data starts from the maindoc.xml as the correct paths of each of the binary data of these layers is to be found first.
+
+## 'maindoc.xml'
 
 In the case of the KRAExample.kra-file this XML-document looks as follows:
 ```
@@ -53,20 +64,40 @@ In the case of the KRAExample.kra-file this XML-document looks as follows:
 </DOC>
 ```
 
-In the codebase this XML-file is used to create a **KraDocument** struct which contains following properties:
-- **width**: the width of image canvas of the *.kra*-file.
-- **height**: the width of image canvas of the *.kra*-file.
-- **channelCount**: the number of color channels stored in the KRA Archive which is equal to 4 when using RGBA.
-- **name**: the name of the *.kra*-file.
-- **layers**: a vector of layers stored in the KRA archive.
+Of particular interest are the attributes of the IMAGE element and the layers contained in the layers range. Each layer contains a **filename** attribute which gives the path to the compressed binary data of this layer which will have to be parsed and uncompressed.
 
-Each of the KraLayers, as found in the layers-vector, are also structs that contain following variables:
-- ...
-- **tiles**: a vector of tiles that make up the layer.
+## 'layer2'
 
-Each of tiles are stored, in compressed form, in the layer2 binary file and will have to be extracted, one-by-one, in a
-sequential manner.
+Each binary layer file of the KRA archive obeys following format (values are purely illustrational):
 
-## layer2
+![Tile Binary Structure](tile-binary-structure.png?raw=true "Tile Binary Structure")
 
-Contains the binary data of all the tiles of layer2 in a LZF compressed format.
+As is evident, this layer contains a number of tiles, each having a single line header and a main header that defines the uncompressed data and the format. Each of these lines is terminated with an LF (Line Feed) byte, having a hex-value of 0x0A. 
+
+### Layer header
+
+Following attributes are present in the main header:
+- **VERSION**: version statement of the saved file, in most cases this will be 2
+- **TILEWIDTH**: width of the saved tiles, by default this will be 64
+- **TILEHEIGTH**: height of the saved tiles, by default this will be 64
+- **PIXELSIZE**: number of bytes stored for each pixel, RGBA requires 4 bytes
+- **DATA**: number of tiles that are stored for this layer
+
+An important value which can be derived from this is the uncompressed data byte size which will be equal to:  
+`UNCOMPRESSEDSIZE = PIXELSIZE*TILEWIDTH*TILEHEIGTH`
+
+### Tile header
+
+Each of the tiles also contains a small header with following attributes:
+- **TILE_LEFT,TILE_TOP,LZF,COMPRESSEDSIZE**: thus giving an indication of the compression algorithm (which is pretty much always LZF), the number of bytes that will follow after this header and the topleft coordinates of the tile that these bytes represent.
+- **0** or **1**: 0 indicates that the data of this tile is uncompressed, while 1 indicates that this tile's data is compressed.
+
+The data that follows can than be uncompressed using the LZF algorithm as found here on the Krita main repository:  
+https://invent.kde.org/kde/krita/-/blob/master/libs/image/tiles3/swap/kis_lzf_compression.cpp
+
+The resulting uncompressed data will obey following format (in the case of RGBA):  
+`B_1, B_2, ..., B_end, G_1, G_2, ..., G_end, R_1, R_2, ..., R_end, A_1, A_2, ..., A_end`
+
+So the Red and Blue channels are swapped for some reason and format will have to be sorted to be applicable to ImageMagick's Image class.
+
+More documentation regarding the KRA format might be written whenever additional functionality is required.

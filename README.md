@@ -13,7 +13,7 @@ Currently the plugin is able to export to both PNG and TGA image formats.
 
 This is an unfortunate constraint of the [PSD Library SDK](https://molecular-matters.com/products_psd_sdk.html), a library that is used to make this plugin work. Efforts to make this library accessible in Linux are ongoing.
 
-The KRA-component of this plugin might be released separately in the future for Linux and/or MacOS.
+The KRA-component of this plugin might be released separately in the future for Linux and/or MacOS. Also, an Godot independent version (containing all of the same Kra-functionalities) is being hosted [here](https://github.com/2shady4u/kra_sdk) in the form of a C++ library.
 
 ### Table Of Contents
 
