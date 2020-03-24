@@ -7,18 +7,16 @@
 
 #include "KraParseDocument.h"
 
-
-
 KRA_NAMESPACE_BEGIN
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Create a KRA Document which contains document properties and a vector of KraLayer-pointers.
 // ---------------------------------------------------------------------------------------------------------------------
-KraDocument* CreateKraDocument(const std::wstring &filename)
+KraDocument *CreateKraDocument(const std::wstring &filename)
 {
 	/* A 'maindoc.xml' file should always be present in the KRA archive, otherwise abort immediately */
 	bool has_maindoc = false;
-	KraDocument* document = new KraDocument;
+	KraDocument *document = new KraDocument;
 
 	/* Convert wstring to string */
 	std::string sFilename(filename.begin(), filename.end());
@@ -46,7 +44,7 @@ KraDocument* CreateKraDocument(const std::wstring &filename)
 			document->width = ParseUIntAttribute(xmlElement, "width");
 			document->height = ParseUIntAttribute(xmlElement, "height");
 			document->name = ParseCharAttribute(xmlElement, "name");
-			const char* colorSpaceName = ParseCharAttribute(xmlElement, "colorspacename");
+			const char *colorSpaceName = ParseCharAttribute(xmlElement, "colorspacename");
 			/* The color space defines the number of 'channels' */
 			/* Each separate layer has its own color space in KRA, so not sure if this necessary... */
 			if (strcmp(colorSpaceName, "RGBA") == 0)
@@ -71,22 +69,27 @@ KraDocument* CreateKraDocument(const std::wstring &filename)
 			document->layers = ParseLayers(xmlElement);
 
 			/* Go through all the layers and initiate their tiles */
+			/* Only layers of type paintlayer get  their tiles parsed8 */
 			/* This also automatically de-encrypts the tile data */
 			for (auto &layer : document->layers)
 			{
-				const std::string &layerPath = (std::string)document->name + "/layers/" + (std::string)layer->filename;
-				std::vector<unsigned char> layerContent;
-				bool success = unzipper.extractEntryToMemory(layerPath, layerContent);
-				if (success == true)
+				if (layer->type == kraLayerType::PAINT_LAYER)
 				{
-					/* Start extracting the tile data. */
-					layer->tiles = ParseTiles(layerContent);
-				}
-				else
-				{
-					printf("(Parsing Document) WARNING: Layer entry with path '%s' could not be found in KRA archive.\n", layerPath.c_str());
+					const std::string &layerPath = (std::string)document->name + "/layers/" + (std::string)layer->filename;
+					std::vector<unsigned char> layerContent;
+					bool success = unzipper.extractEntryToMemory(layerPath, layerContent);
+					if (success == true)
+					{
+						/* Start extracting the tile data. */
+						layer->tiles = ParseTiles(layerContent);
+					}
+					else
+					{
+						printf("(Parsing Document) WARNING: Layer entry with path '%s' could not be found in KRA archive.\n", layerPath.c_str());
+					}
 				}
 			}
+			/* Break out of the loop! We found maindoc.xml! */
 			break;
 		}
 	}
@@ -103,14 +106,14 @@ KraDocument* CreateKraDocument(const std::wstring &filename)
 // ---------------------------------------------------------------------------------------------------------------------
 // Cleans up all allocated memory on the heap.
 // ---------------------------------------------------------------------------------------------------------------------
-void DestroyKraDocument(KraDocument*& document)
+void DestroyKraDocument(KraDocument *&document)
 {
 	while (document->layers.size() > 0)
 	{
-		KraLayer* layer = document->layers.back();
+		KraLayer *layer = document->layers.back();
 		while (layer->tiles.size() > 0)
 		{
-			KraTile* tile = layer->tiles.back();
+			KraTile *tile = layer->tiles.back();
 			layer->tiles.pop_back();
 			free(tile->data);
 			delete tile;
@@ -173,10 +176,10 @@ const wchar_t *ParseWCharAttribute(const tinyxml2::XMLElement *xmlElement, const
 	}
 	else
 	{
-		const char* attributeChar = attribute->Value();
-		const size_t cSize = strlen(attributeChar)+1;
-    	wchar_t* attributeWChar = new wchar_t[cSize];
-    	mbstowcs (attributeWChar, attributeChar, cSize);
+		const char *attributeChar = attribute->Value();
+		const size_t cSize = strlen(attributeChar) + 1;
+		wchar_t *attributeWChar = new wchar_t[cSize];
+		mbstowcs(attributeWChar, attributeChar, cSize);
 
 		attributeValue = attributeWChar;
 	}
@@ -186,9 +189,9 @@ const wchar_t *ParseWCharAttribute(const tinyxml2::XMLElement *xmlElement, const
 // ---------------------------------------------------------------------------------------------------------------------
 // Go through the XML-file and extract all the layer properties.
 // ---------------------------------------------------------------------------------------------------------------------
-std::vector<KraLayer*> ParseLayers(tinyxml2::XMLElement *xmlElement)
+std::vector<KraLayer *> ParseLayers(tinyxml2::XMLElement *xmlElement)
 {
-	std::vector<KraLayer*> layers;
+	std::vector<KraLayer *> layers;
 	const tinyxml2::XMLElement *layersElement = xmlElement->FirstChildElement("layers");
 	const tinyxml2::XMLElement *layerNode = layersElement->FirstChild()->ToElement();
 
@@ -196,17 +199,16 @@ std::vector<KraLayer*> ParseLayers(tinyxml2::XMLElement *xmlElement)
 	/* Keep trying to find a layer until we can't any new ones! */
 	while (layerNode != 0)
 	{
-		KraLayer* layer = new KraLayer;
+		KraLayer *layer = new KraLayer;
 		/* Get important layer attributes from the XML-file */
 		layer->x = ParseUIntAttribute(layerNode, "x");
 		layer->y = ParseUIntAttribute(layerNode, "y");
 		layer->opacity = ParseUIntAttribute(layerNode, "opacity");
 		layer->isVisible = ParseUIntAttribute(layerNode, "visible");
-		layer->opacity = ParseUIntAttribute(layerNode, "opacity");
 
 		layer->name = ParseWCharAttribute(layerNode, "name");
 		layer->filename = ParseCharAttribute(layerNode, "filename");
-		const char* colorSpaceName = ParseCharAttribute(layerNode, "colorspacename");
+		const char *colorSpaceName = ParseCharAttribute(layerNode, "colorspacename");
 		/* The color space defines the number of 'channels' */
 		/* Each seperate layer has its own color space in KRA, so not sure if this necessary... */
 		if (strcmp(colorSpaceName, "RGBA") == 0)
@@ -222,16 +224,20 @@ std::vector<KraLayer*> ParseLayers(tinyxml2::XMLElement *xmlElement)
 			layer->channelCount = 0u;
 		}
 
-		const char* nodeType = ParseCharAttribute(layerNode, "nodetype");
+		const char *nodeType = ParseCharAttribute(layerNode, "nodetype");
 		/* The color space defines the number of 'channels' */
 		/* Each seperate layer has its own color space in KRA, so not sure if this necessary... */
 		if (strcmp(nodeType, "paintlayer") == 0)
 		{
 			layer->type = kraLayerType::PAINT_LAYER;
 		}
-		else if (strcmp(nodeType, "vectorLayer") == 0)
+		else if (strcmp(nodeType, "vectorlayer") == 0)
 		{
 			layer->type = kraLayerType::VECTOR_LAYER;
+		}
+		else if (strcmp(nodeType, "grouplayer") == 0)
+		{
+			layer->type = kraLayerType::GROUP_LAYER;
 		}
 		else
 		{
@@ -268,10 +274,10 @@ std::vector<KraLayer*> ParseLayers(tinyxml2::XMLElement *xmlElement)
 // ---------------------------------------------------------------------------------------------------------------------
 // Extract the tile data and properties from the raw binary data.
 // ---------------------------------------------------------------------------------------------------------------------
-std::vector<KraTile*> ParseTiles(std::vector<unsigned char> layerContent)
+std::vector<KraTile *> ParseTiles(std::vector<unsigned char> layerContent)
 {
 
-	std::vector<KraTile*> tiles;
+	std::vector<KraTile *> tiles;
 
 	/* This code works with a global pointer index that gets incremented depending on element size */
 	/* currentIndex obviously starts at zero and will be passed by reference */
@@ -295,7 +301,7 @@ std::vector<KraTile*> ParseTiles(std::vector<unsigned char> layerContent)
 
 	for (unsigned int i = 0; i < numberOfTiles; i++)
 	{
-		KraTile* tile = new KraTile;
+		KraTile *tile = new KraTile;
 		tile->version = version;
 		tile->tileWidth = tileWidth;
 		tile->tileHeight = tileHeight;
@@ -333,7 +339,7 @@ std::vector<KraTile*> ParseTiles(std::vector<unsigned char> layerContent)
 		/* Put all the data in a vector */
 		std::vector<unsigned char> dataVector(layerContent.begin() + currentIndex, layerContent.begin() + currentIndex + tile->compressedLength);
 		const uint8_t *dataVectorPointer = dataVector.data();
-		/* Allocate memory for the output */ 
+		/* Allocate memory for the output */
 		uint8_t *output = (uint8_t *)malloc(tile->decompressedLength);
 
 		/* Now... the first byte of this dataVector is actually an indicator of compression */
@@ -360,9 +366,9 @@ std::vector<KraTile*> ParseTiles(std::vector<unsigned char> layerContent)
 		int tileArea = tile->tileHeight * tile->tileWidth;
 		for (int i = 0; i < tileArea; i++)
 		{
-			sortedOutput[jj] = output[2 * tileArea + i]; //RED CHANNEL
-			sortedOutput[jj + 1] = output[tileArea + i];	//GREEN CHANNEL
-			sortedOutput[jj + 2] = output[i]; //BLUE CHANNEL
+			sortedOutput[jj] = output[2 * tileArea + i];	 //RED CHANNEL
+			sortedOutput[jj + 1] = output[tileArea + i];	 //GREEN CHANNEL
+			sortedOutput[jj + 2] = output[i];				 //BLUE CHANNEL
 			sortedOutput[jj + 3] = output[3 * tileArea + i]; //ALPHA CHANNEL
 			jj = jj + 4;
 		}

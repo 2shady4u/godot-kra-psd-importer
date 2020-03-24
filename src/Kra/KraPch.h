@@ -17,7 +17,8 @@
 // Enum to define the layer type of the Kra layer.
 typedef enum
 {
+    OTHER,
     PAINT_LAYER,
     VECTOR_LAYER,
-    OTHER
+    GROUP_LAYER
 } kraLayerType;
