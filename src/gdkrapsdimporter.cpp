@@ -425,7 +425,9 @@ bool KRAPSDImporter::ExportAllPSDLayers()
 			{
 				ssLayerName << layer->name.c_str();
 			}
-			const wchar_t* layerName = ssLayerName.str().c_str();
+			/* Do this cast in two parts, otherwise weird undefined behaviour happens */
+			std::wstring wslayerName = ssLayerName.str();
+			const wchar_t* layerName = wslayerName.c_str();
 
 			// at this point, image8, image16 or image32 store either a 8-bit, 16-bit, or 32-bit image, respectively.
 			// the image data is stored in interleaved RGB or RGBA, and has the size "document->width*document->height".
@@ -599,7 +601,7 @@ bool KRAPSDImporter::SaveTexture(const wchar_t *filename, unsigned int width, un
 
 			Magick::Geometry newSize = Magick::Geometry((size_t)newWidth, (size_t)newHeight);
 
-			printf("(GDKRAPSDImporter) Resizing layer from [%zi, %zi] to new dimensions [%zi, %zi]", 
+			printf("(GDKRAPSDImporter) Resizing layer from [%zi, %zi] to new dimensions [%zi, %zi]\n", 
 			oldSize.width(), oldSize.height(), newSize.width(), newSize.height());
 	
 			newSize.aspect(true);
