@@ -4,9 +4,13 @@
 
 **!!!DISCLAIMER !!! WORK IN PROGRESS**
 
+**LOOKING FOR HELP! THE SCOPE OF THIS PROJECT IS IMMENSE!**
+
 GDNative wrapper for Importing KRA- and PSD-files into Godot 3.1+, making it possible to significantly speed up development. Additionally, it does not require any additional compilation or mucking about with build scripts.
 
 Currently the plugin is able to export to both PNG and TGA image formats.
+
+This plugin is introduced/discussed in this [blogpost](https://www.tripthearkfantastic.com/ark-blog-thursday/our-foss-pipeline-backgrounds-from-draft-to-import/) for the upcoming game [Trip the Ark Fantastic](https://www.tripthearkfantastic.com/). Feel free to check it out if you are intressed in Game development asset pipelines.
 
 ### Supported operating systems:
 - Windows
