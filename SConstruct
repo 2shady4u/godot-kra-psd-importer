@@ -95,7 +95,7 @@ env['vcpkg_path'] + 'include/freetype/',
 zipper_bindings_path + 'zipper/'])
 env.Append(LIBPATH=[cpp_bindings_path + 'bin/', env['vcpkg_path'] + 'lib/', zipper_lib_path])
 env.Append(LIBS=[cpp_library, 
-"bz2", 
+"bz2",
 "freetype",
 "graphicsmagick",
 "jpeg",

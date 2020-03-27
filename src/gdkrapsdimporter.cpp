@@ -346,7 +346,7 @@ bool KRAPSDImporter::ExportAllPSDLayers()
 					canvasData[2] = layer->channels[indexB].data;
 				}
 				channelCount = 3u;
-				channelType = colorSpaceName::RGB;
+				channelType = COLOR_SPACE_NAME::RGB;
 
 				if (indexA != CHANNEL_NOT_FOUND)
 				{
@@ -360,7 +360,7 @@ bool KRAPSDImporter::ExportAllPSDLayers()
 						canvasData[3] = layer->channels[indexA].data;
 					}
 					channelCount = 4u;
-					channelType = colorSpaceName::RGBA;
+					channelType = COLOR_SPACE_NAME::RGBA;
 				}
 			}
 
@@ -512,7 +512,8 @@ bool KRAPSDImporter::EmitKRATextureProperties(std::wstring filename, KraExported
 	/* This variable doesn't have any effect yet! */
 	if (cropToCanvas == false || true)
 	{
-		textureProperties["position"] = Vector2((real_t)layer->left, (real_t)layer->top);
+		/* Don't forget to include scaling here! */
+		textureProperties["position"] = resizeFactor*Vector2((real_t)layer->left, (real_t)layer->top);
 	}
 	else
 	{
@@ -532,7 +533,8 @@ bool KRAPSDImporter::EmitPSDTextureProperties(std::wstring filename, Layer* laye
 	textureProperties["path"] = String(filename.c_str());
 	if (cropToCanvas == false)
 	{
-		textureProperties["position"] = Vector2((real_t)layer->left, (real_t)layer->top);
+		/* Don't forget to include scaling here! */
+		textureProperties["position"] = resizeFactor*Vector2((real_t)layer->left, (real_t)layer->top);
 	}
 	else
 	{
