@@ -130,18 +130,6 @@ KRAPSDImporter::~KRAPSDImporter()
 void KRAPSDImporter::_init()
 {
 	verboseMode = false;
-
-	// Verify if the environment variable 'MAGICK_CODER_MODULE_PATH' is set.
-	String var = "MAGICK_CODER_MODULE_PATH";
-	char *value = getenv(var.alloc_c_string());
-	if (value)
-	{
-		Godot::print("Environment variable " + var + " points to path '" + value + "'");
-	}
-	else
-	{
-		Godot::print("GDKRAPSDImporter warning: Environment variable " + var + " is not set in the system registry! (Ignore warning if ImageMagick is installed)");
-	}
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -579,14 +567,15 @@ bool KRAPSDImporter::SaveTexture(const wchar_t *filename, unsigned int width, un
 		switch (channelType)
 		{
 		case MONOCHROME:
-			image.read(width, height, "K", MagickCore::CharPixel, colors);
-			image.negateChannel(MagickCore::BlackChannel, true);
+			image.read(width, height, "K", Magick::CharPixel, colors);
+			/* Black and white are switched for some reason? */
+			image.negate();
 			break;
 		case RGB:
-			image.read(width, height, "RGB", MagickCore::CharPixel, colors);
+			image.read(width, height, "RGB", Magick::CharPixel, colors);
 			break;
 		case RGBA:
-			image.read(width, height, "RGBA", MagickCore::CharPixel, colors);
+			image.read(width, height, "RGBA", Magick::CharPixel, colors);
 			break;
 		}
 
@@ -601,7 +590,7 @@ bool KRAPSDImporter::SaveTexture(const wchar_t *filename, unsigned int width, un
 
 			Magick::Geometry newSize = Magick::Geometry((size_t)newWidth, (size_t)newHeight);
 
-			printf("(GDKRAPSDImporter) Resizing layer from [%zi, %zi] to new dimensions [%zi, %zi]\n", 
+			printf("(GDKRAPSDImporter) Resizing layer from [%i, %i] to new dimensions [%i, %i]\n", 
 			oldSize.width(), oldSize.height(), newSize.width(), newSize.height());
 	
 			newSize.aspect(true);
@@ -609,28 +598,16 @@ bool KRAPSDImporter::SaveTexture(const wchar_t *filename, unsigned int width, un
 		}
 
 		/* Write the image to a file */
-		/* ImageMagick gets the extension from the filename automagically */
+		/* GraphicsMagick gets the extension from the filename automagically */
 		std::wstring ws(filename);
 		std::string str(ws.begin(), ws.end());
 		image.write(str);
 
-		/* Terminate ImageMagick library */
-		Magick::TerminateMagick();
 	}
 	catch (const std::exception &e)
 	{
-		// Verify the environment variable 'MAGICK_CODER_MODULE_PATH'.
-		String var = "MAGICK_CODER_MODULE_PATH";
-		char *value = getenv(var.alloc_c_string());
-		if (!value)
-		{
-			errorMessage = var + " is missing!";
-		}
-		else
-		{
-			errorMessage = "Unknown error (check console)";
-		}
-		Godot::print("GDKRAPSDImporter Error (ImageMagick):" + String(e.what()));
+		errorMessage = "Unknown error (check console)";
+		Godot::print("GDKRAPSDImporter Error (GraphicsMagick):" + String(e.what()));
 		return false;
 	}
 	return true;
