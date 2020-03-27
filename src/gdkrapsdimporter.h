@@ -13,6 +13,7 @@
 #include <string>
 #include <map>
 
+#ifdef WIN32
 // the main include that always needs to be included in every translation unit that uses the PSD library
 #include "Psd/Psd.h"
 
@@ -55,6 +56,7 @@ PSD_PUSH_WARNING_LEVEL(0)
 #include <string>
 #include <sstream>
 PSD_POP_WARNING_LEVEL
+#endif
 
 namespace godot {
 
@@ -95,11 +97,13 @@ private:
 
     float resizeFactor;
 
+    #ifdef WIN32
     bool ExportAllPSDLayers();
-    bool ExportAllKRALayers();
-    std::wstring ExportLayer(const wchar_t* name, unsigned int width, unsigned int height, const uint8_t* data);
     bool EmitPSDTextureProperties(std::wstring filename, psd::Layer* layer);
+    #endif
+    bool ExportAllKRALayers();
     bool EmitKRATextureProperties(std::wstring filename, kra::KraExportedLayer* layer);
+    std::wstring ExportLayer(const wchar_t* name, unsigned int width, unsigned int height, const uint8_t* data);
     bool SaveTexture(const wchar_t* filename, unsigned int width, unsigned int height, const uint8_t* data);
 
 public:

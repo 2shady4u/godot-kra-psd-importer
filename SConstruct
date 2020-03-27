@@ -27,6 +27,8 @@ bits = 64
 # Updates the environment with the option variables.
 opts.Update(env)
 
+sources = [Glob('src/*.cpp'), Glob('src/Kra/*.cpp'), 'src/tinyxml2/tinyxml2.cpp']
+
 # Process some arguments
 if env['use_llvm']:
     env['CC'] = 'clang'
@@ -67,6 +69,7 @@ elif env['platform'] == "windows":
     env.Append(CCFLAGS = ['-O2', '-EHsc', '-DNDEBUG', '-MD'])
 
     env['vcpkg_path'] += '/x64-windows/'
+    sources += [Glob('src/Psd/*.cpp'), 'src/Psd/Psdminiz.c']
 
 # Create the path to the godot-cpp bindings library.
 cpp_library += '.release'
@@ -102,7 +105,6 @@ env.Append(LIBS=[cpp_library,
 
 # tweak this if you want to use different folders, or more folders, to store your source code in.
 env.Append(CPPPATH=['src/'])
-sources = [Glob('src/*.cpp'), Glob('src/Psd/*.cpp'), Glob('src/Kra/*.cpp'), 'src/tinyxml2/tinyxml2.cpp', 'src/Psd/Psdminiz.c']
 
 library = env.SharedLibrary(target=env['target_path'] + env['target_name'] , source=sources)
 

@@ -1,7 +1,8 @@
 #include "gdkrapsdimporter.h"
 
-PSD_USING_NAMESPACE;
 KRA_USING_NAMESPACE;
+#ifdef WIN32
+PSD_USING_NAMESPACE;
 
 // helpers for reading PSDs
 namespace
@@ -97,6 +98,7 @@ T *CreateInterleavedImage(Allocator *allocator, const void *srcR, const void *sr
 	return image;
 }
 } // namespace
+#endif
 
 using namespace godot;
 
@@ -169,12 +171,17 @@ bool KRAPSDImporter::ExportAllLayers()
 	}
 	else if (extension == "psd")
 	{
+		#ifdef WIN32
 		if (verboseMode)
 		{
 			Godot::print("(GDKRAPSDImporter) Detected PSD-format... running PSD export!");
 		}
 		importType = importType::PSD;
 		return ExportAllPSDLayers();
+		#endif
+		errorMessage = "This format is not supported on this platform!";
+		Godot::print("GDKRAPSDImporter Error: Detected PSD-format... " + errorMessage);
+		return false;
 	}
 	else
 	{
@@ -235,6 +242,7 @@ bool KRAPSDImporter::ExportAllKRALayers()
 
 // ---------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
+#ifdef WIN32
 bool KRAPSDImporter::ExportAllPSDLayers()
 {
 
@@ -442,6 +450,7 @@ bool KRAPSDImporter::ExportAllPSDLayers()
 
 	return true;
 }
+#endif
 
 // ---------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
@@ -516,6 +525,7 @@ bool KRAPSDImporter::EmitKRATextureProperties(std::wstring filename, KraExported
 // ---------------------------------------------------------------------------------------------------------------------
 // Create a Dictionary that contains all of the texture properties as derived from the psd::Layer
 // ---------------------------------------------------------------------------------------------------------------------
+#ifdef WIN32
 bool KRAPSDImporter::EmitPSDTextureProperties(std::wstring filename, Layer* layer)
 {
 	Dictionary textureProperties = Dictionary();
@@ -531,6 +541,7 @@ bool KRAPSDImporter::EmitPSDTextureProperties(std::wstring filename, Layer* laye
 	emit_signal("texture_created", textureProperties);
 	return true;
 }
+#endif
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Here the actual magick happens (pun) intended, and the ImageMagick library gets called to save a PNG or TGA texture.
