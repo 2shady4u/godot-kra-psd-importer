@@ -45,11 +45,6 @@
 #include "Psd/PsdExportDocument.h"
 #include "Psd/PsdLayerType.h"
 
-#include "Kra/KraDocument.h"
-#include "Kra/KraExportedLayer.h"
-#include "Kra/KraParseDocument.h"
-#include "Kra/KraExport.h"
-
 PSD_PUSH_WARNING_LEVEL(0)
 // disable annoying warning caused by xlocale(337): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
 #pragma warning(disable : 4530)
@@ -57,6 +52,11 @@ PSD_PUSH_WARNING_LEVEL(0)
 #include <sstream>
 PSD_POP_WARNING_LEVEL
 #endif
+
+#include "Kra/KraDocument.h"
+#include "Kra/KraExportedLayer.h"
+#include "Kra/KraParseDocument.h"
+#include "Kra/KraExport.h"
 
 namespace godot {
 
@@ -67,20 +67,20 @@ typedef enum
 {
     PNG,
     TGA
-} exportType;
+} EXPORT_TYPE;
 
 typedef enum
 {
     KRA,
     PSD
-} importType;
+} IMPORT_TYPE;
 
 typedef enum
 {
     MONOCHROME,
     RGB,
     RGBA
-} colorSpaceName;
+} COLOR_SPACE_NAME;
 
 private:
     String rawFilePath;

@@ -115,7 +115,7 @@ void KRAPSDImporter::_register_methods()
 	register_property<KRAPSDImporter, bool>("crop_to_canvas", &KRAPSDImporter::cropToCanvas, true);
 	register_property<KRAPSDImporter, bool>("mirror_universe", &KRAPSDImporter::mirrorUniverse, false);
 
-	register_property<KRAPSDImporter, int>("export_type", &KRAPSDImporter::exportType, exportType::PNG);
+	register_property<KRAPSDImporter, int>("export_type", &KRAPSDImporter::exportType, EXPORT_TYPE::PNG);
 	register_property<KRAPSDImporter, float>("resize_factor", &KRAPSDImporter::resizeFactor, 1);
 
 	register_signal<KRAPSDImporter>("texture_created", "texture_properties", GODOT_VARIANT_TYPE_DICTIONARY);
@@ -166,7 +166,7 @@ bool KRAPSDImporter::ExportAllLayers()
 		{
 			Godot::print("(GDKRAPSDImporter) Detected KRA-format... running KRA export!");
 		}
-		importType = importType::KRA;
+		importType = IMPORT_TYPE::KRA;
 		return ExportAllKRALayers();
 	}
 	else if (extension == "psd")
@@ -176,7 +176,7 @@ bool KRAPSDImporter::ExportAllLayers()
 		{
 			Godot::print("(GDKRAPSDImporter) Detected PSD-format... running PSD export!");
 		}
-		importType = importType::PSD;
+		importType = IMPORT_TYPE::PSD;
 		return ExportAllPSDLayers();
 		#endif
 		errorMessage = "This format is not supported on this platform!";
@@ -214,10 +214,10 @@ bool KRAPSDImporter::ExportAllKRALayers()
 		switch (layer->channelCount)
 		{
 		case 4u:
-			channelType = colorSpaceName::RGBA;
+			channelType = COLOR_SPACE_NAME::RGBA;
 			break;
 		case 3u:
-			channelType = colorSpaceName::RGB;
+			channelType = COLOR_SPACE_NAME::RGB;
 			break;
 		
 		default:

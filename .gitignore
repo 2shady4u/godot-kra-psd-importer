@@ -39,3 +39,8 @@ vsproj/x86/
 vsproj/gdsqlite.vcxproj.*
 
 .vscode
+
+# CodeLite
+.codelite
+src.project
+src.workspace
