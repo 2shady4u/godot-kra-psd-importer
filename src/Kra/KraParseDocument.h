@@ -31,6 +31,7 @@ std::vector<KraTile*> ParseTiles(std::vector<unsigned char> layerContent);
 unsigned int ParseHeaderElement(std::vector<unsigned char> layerContent, const std::string & elementName, unsigned int& currentIndex);
 std::string GetHeaderElement(std::vector<unsigned char> layerContent, unsigned int& currentIndex);
 
+int extractCurrentFileToVector(std::vector<unsigned char>& resultVector, unzFile& m_zf);
 int lzff_decompress(const void* input, int length, void* output, int maxout);
 
 KRA_NAMESPACE_END

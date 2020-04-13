@@ -14,42 +14,93 @@ KRA_NAMESPACE_BEGIN
 // ---------------------------------------------------------------------------------------------------------------------
 KraDocument *CreateKraDocument(const std::wstring &filename)
 {
-	/* A 'maindoc.xml' file should always be present in the KRA archive, otherwise abort immediately */
-	bool has_maindoc = false;
 	KraDocument *document = new KraDocument;
 
 	/* Convert wstring to string */
 	std::string sFilename(filename.begin(), filename.end());
-
 	const char * path = sFilename.c_str();
 
-	unzFile test = unzOpen(path);
-
-	if (test == NULL)
+	/* Open the KRA archive using minizip */
+	unzFile m_zf = unzOpen(path);
+	if (m_zf == NULL)
 	{
-		printf("wooooo");
-		std::cout << path << std::endl;
-	}
-	else 
-	{
-		printf("wee");
+		printf("(Parsing Document) ERROR: Failed to open KRA archive.\n");
+		return NULL;
 	}
 
-	int error_code1 = unzLocateFile(test, "maindoc.xml", 1);
-
-	int error_code2 = unzClose(test);
-
-	if (error_code1 == UNZ_OK)
+	/* A 'maindoc.xml' file should always be present in the KRA archive, otherwise abort immediately */
+	int errorCode = unzLocateFile(m_zf, "maindoc.xml", 1);
+	if (errorCode == UNZ_OK)
 	{
 		printf("(Parsing Document) Found 'maindoc.xml', extracting document and layer properties\n");
 	}
 	else 
 	{
 		printf("(Parsing Document) WARNING: KRA archive did not contain maindoc.xml!\n");
+		return NULL;
 	}
 
-	std::cout << error_code1 << std::endl;
-	std::cout << error_code2 << std::endl;
+	std::vector<unsigned char> resultVector;
+	extractCurrentFileToVector(resultVector, m_zf);
+	/* Put the vector into a string and parse it using tinyXML2 */
+	std::string xmlString(resultVector.begin(), resultVector.end());
+	tinyxml2::XMLDocument xmlDocument;
+	xmlDocument.Parse(xmlString.c_str());
+	tinyxml2::XMLElement *xmlElement = xmlDocument.FirstChildElement("DOC")->FirstChildElement("IMAGE");
+
+	/* Get important document attributes from the XML-file */
+	document->width = ParseUIntAttribute(xmlElement, "width");
+	document->height = ParseUIntAttribute(xmlElement, "height");
+	document->name = ParseCharAttribute(xmlElement, "name");
+	const char *colorSpaceName = ParseCharAttribute(xmlElement, "colorspacename");
+	/* The color space defines the number of 'channels' */
+	/* Each separate layer has its own color space in KRA, so not sure if this necessary... */
+	if (strcmp(colorSpaceName, "RGBA") == 0)
+	{
+		document->channelCount = 4u;
+	}
+	else if (strcmp(colorSpaceName, "RGB") == 0)
+	{
+		document->channelCount = 3u;
+	}
+	else
+	{
+		document->channelCount = 0u;
+	}
+	printf("(Parsing Document) Document properties are extracted and have following values:\n");
+	printf("(Parsing Document)  	>> width = %i\n", document->width);
+	printf("(Parsing Document)  	>> height = %i\n", document->height);
+	printf("(Parsing Document)  	>> name = %s\n", document->name);
+	printf("(Parsing Document)  	>> channelCount = %i\n", document->channelCount);
+
+	/* Parse all the layers registered in the maindoc.xml and add them to the document */
+	document->layers = ParseLayers(xmlElement);
+
+	/* Go through all the layers and initiate their tiles */
+	/* Only layers of type paintlayer get  their tiles parsed8 */
+	/* This also automatically de-encrypts the tile data */
+	for (auto &layer : document->layers)
+	{
+		if (layer->type == kraLayerType::PAINT_LAYER)
+		{
+			const std::string &layerPath = (std::string)document->name + "/layers/" + (std::string)layer->filename;
+			std::vector<unsigned char> layerContent;
+			const char* cLayerPath = layerPath.c_str(); 
+			int errorCode = unzLocateFile(m_zf, cLayerPath, 1);
+			errorCode += extractCurrentFileToVector(layerContent, m_zf);
+			if (errorCode == UNZ_OK)
+			{
+				/* Start extracting the tile data. */
+				layer->tiles = ParseTiles(layerContent);
+			}
+			else
+			{
+				printf("(Parsing Document) WARNING: Layer entry with path '%s' could not be found in KRA archive.\n", layerPath.c_str());
+			}
+		}
+	}
+
+	errorCode = unzClose(m_zf);
 
 	return document;
 
@@ -407,6 +458,46 @@ std::string GetHeaderElement(std::vector<unsigned char> layerContent, unsigned i
 
 	return elementValue;
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Extra the data content of the current file in the ZIP archive to a vector.
+// ---------------------------------------------------------------------------------------------------------------------
+
+int extractCurrentFileToVector(std::vector<unsigned char>& resultVector, unzFile& m_zf)
+{
+	size_t errorCode = UNZ_ERRNO;
+ 	unz_file_info64 file_info = { 0 };
+    char filename_inzip[256] = { 0 };
+
+	/* Get the required size necessary to store the file content. */
+    errorCode = unzGetCurrentFileInfo64(m_zf, &file_info, filename_inzip, sizeof(filename_inzip), NULL, 0, NULL, 0);
+	size_t uncompressed_size = file_info.uncompressed_size;
+
+	errorCode = unzOpenCurrentFile(m_zf);
+
+	std::vector<unsigned char> buffer;
+	buffer.resize(WRITEBUFFERSIZE);
+	resultVector.reserve((size_t)file_info.uncompressed_size);
+
+	/* error_code serves also as the number of bytes that were read... */
+	do
+	{
+	/* Read the data in parts of size WRITEBUFFERSIZE */
+	/* and keep reading until the function returns zero or lower. */
+	errorCode = unzReadCurrentFile(m_zf, buffer.data(), (unsigned int)buffer.size());
+	if (errorCode < 0 || errorCode == 0)
+		break;
+
+	resultVector.insert(resultVector.end(), buffer.data(), buffer.data() + errorCode);
+
+	} while (errorCode > 0);
+
+	/* Be sure to close the file to avoid leakage. */
+	errorCode = unzCloseCurrentFile(m_zf);
+
+	return (int)errorCode;
+}
+
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Decompression function for LZF copied directly (with minor modifications) from the Krita codebase (libs\image\tiles3\swap\kis_lzf_compression.cpp).

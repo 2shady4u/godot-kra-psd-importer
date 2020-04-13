@@ -32,7 +32,7 @@ func test_kra() -> bool:
 	var kra_psd_importer = KRAPSDImporter.new()
 	kra_psd_importer.raw_file_path = KRA_RAW_FILE
 	kra_psd_importer.target_folder_path = TARGET_FOLDER
-	kra_psd_importer.export_type = 0 #PNG = 0 & TGA = 1
+	#kra_psd_importer.export_type = 0 #PNG = 0 & TGA = 1
 	kra_psd_importer.crop_to_canvas = false
 	kra_psd_importer.resize_factor = 1.0
 	kra_psd_importer.mirror_universe = false
@@ -44,7 +44,7 @@ func test_psd() -> bool:
 	var kra_psd_importer = KRAPSDImporter.new()
 	kra_psd_importer.raw_file_path = PSD_RAW_FILE
 	kra_psd_importer.target_folder_path = TARGET_FOLDER
-	kra_psd_importer.export_type = 0 #PNG = 0 & TGA = 1
+	#kra_psd_importer.export_type = 0 #PNG = 0 & TGA = 1
 	kra_psd_importer.crop_to_canvas = false
 	kra_psd_importer.resize_factor = 1.0
 	kra_psd_importer.mirror_universe = false

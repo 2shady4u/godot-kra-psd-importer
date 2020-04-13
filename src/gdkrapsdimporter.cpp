@@ -115,7 +115,7 @@ void KRAPSDImporter::_register_methods()
 	register_property<KRAPSDImporter, bool>("crop_to_canvas", &KRAPSDImporter::cropToCanvas, true);
 	register_property<KRAPSDImporter, bool>("mirror_universe", &KRAPSDImporter::mirrorUniverse, false);
 
-	register_property<KRAPSDImporter, int>("export_type", &KRAPSDImporter::exportType, EXPORT_TYPE::PNG);
+	//register_property<KRAPSDImporter, int>("export_type", &KRAPSDImporter::exportType, EXPORT_TYPE::PNG);
 	register_property<KRAPSDImporter, float>("resize_factor", &KRAPSDImporter::resizeFactor, 1);
 
 	register_signal<KRAPSDImporter>("texture_created", "texture_properties", GODOT_VARIANT_TYPE_DICTIONARY);
@@ -202,10 +202,6 @@ bool KRAPSDImporter::ExportAllKRALayers()
 	const std::wstring targetFolder = targetFolderPath.unicode_str();
 
 	KraDocument* document = CreateKraDocument(rawFile);
-
-	DestroyKraDocument(document);
-
-	return true;
 
 	std::vector<KraExportedLayer*> exportedLayers = CreateKraExportLayers(document);
 
@@ -480,21 +476,21 @@ std::wstring KRAPSDImporter::ExportLayer(const wchar_t* name, unsigned int width
 	default:
 		break;
 	}
-	switch (exportType)
-	{
-	case PNG:
+	//switch (exportType)
+	//{
+	//case PNG:
 		ssFilename << L".png";
 		Godot::print("(GDKRAPSDImporter) Saving " + String(channelChar) + " layer '" + String(name) + "' to PNG ('" + String(ssFilename.str().c_str()) + "')");
-		break;
+		//break;
 
-	case TGA:
-		ssFilename << L".tga";
-		Godot::print("(GDKRAPSDImporter) Saving " + String(channelChar) + " layer '" + String(name) + "' to TGA ('" + String(ssFilename.str().c_str()) + "')");
-		break;
+	//case TGA:
+	//	ssFilename << L".tga";
+	//	Godot::print("(GDKRAPSDImporter) Saving " + String(channelChar) + " layer '" + String(name) + "' to TGA ('" + String(ssFilename.str().c_str()) + "')");
+	//	break;
 
-	default:
-		break;
-	}
+	//default:
+	//	break;
+	//}
 
 	std::wstring filename = ssFilename.str();
 
@@ -550,8 +546,7 @@ bool KRAPSDImporter::EmitPSDTextureProperties(std::wstring filename, Layer* laye
 #endif
 
 // ---------------------------------------------------------------------------------------------------------------------
-// Here the actual magick happens (pun) intended, and the ImageMagick library gets called to save a PNG or TGA texture.
-// Resizing is also done here!
+// Here the data gets exported and saved as a PNG using the libpng library.
 // ---------------------------------------------------------------------------------------------------------------------
 bool KRAPSDImporter::SaveTexture(const wchar_t *filename, unsigned int width, unsigned int height, const uint8_t *data)
 {
@@ -569,7 +564,8 @@ bool KRAPSDImporter::SaveTexture(const wchar_t *filename, unsigned int width, un
 	// Open file for writing (binary mode)
 	fp = fopen(cFilename, "wb");
 	if (fp == NULL) {
-		fprintf(stderr, "Could not open file %s for writing\n", cFilename);
+		errorMessage = "Could not open file " + String(filename) + " for writing";
+		Godot::print("GDKRAPSDImporter Error: " + errorMessage);
 		success = false;
 		goto finalise;
 	}
@@ -577,7 +573,8 @@ bool KRAPSDImporter::SaveTexture(const wchar_t *filename, unsigned int width, un
 	// Initialize write structure
 	png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 	if (png_ptr == NULL) {
-		fprintf(stderr, "Could not allocate write struct\n");
+		errorMessage = "Could not allocate write struct";
+		Godot::print("GDKRAPSDImporter Error: " + errorMessage);
 		success = false;
 		goto finalise;
 	}
@@ -585,42 +582,66 @@ bool KRAPSDImporter::SaveTexture(const wchar_t *filename, unsigned int width, un
 	// Initialize info structure
 	info_ptr = png_create_info_struct(png_ptr);
 	if (info_ptr == NULL) {
-		fprintf(stderr, "Could not allocate info struct\n");
+		errorMessage = "Could not allocate info struct";
+		Godot::print("GDKRAPSDImporter Error: " + errorMessage);
 		success = false;
 		goto finalise;
 	}
 
 	// Setup Exception handling
 	if (setjmp(png_jmpbuf(png_ptr))) {
-		fprintf(stderr, "Error during png creation\n");
+		errorMessage = "Error during png creation";
+		Godot::print("GDKRAPSDImporter Error: " + errorMessage);
 		success = false;
 		goto finalise;
 	}
 
 	png_init_io(png_ptr, fp);
 
-	// Write header (8 bit colour depth)
+	unsigned int channelCount = 0u;
+	int colorType = 0;
+	switch (channelType)
+	{
+	case MONOCHROME:
+		channelCount = 1;
+		colorType = PNG_COLOR_TYPE_GRAY;
+		break;
+	case RGB:
+		channelCount = 3;
+		colorType = PNG_COLOR_TYPE_RGB;
+		break;
+	case RGBA:
+		channelCount = 4;
+		colorType = PNG_COLOR_TYPE_RGBA;
+		break;
+	default:
+		return false;
+		break;
+	}
+
+	/* Write header depending on the channel type, always in 8 bit colour depth. */
 	png_set_IHDR(png_ptr, info_ptr, width, height,
-			8, PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
+			8, colorType, PNG_INTERLACE_NONE,
 			PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
 
 	png_write_info(png_ptr, info_ptr);
 
-	// Allocate memory for one row (3 bytes per pixel - RGB)
-	row = (png_bytep) malloc(4 * width * sizeof(png_byte));
+	/* Allocate memory for one row (channelCount per pixel - RGB ) */
+	row = (png_bytep) malloc(channelCount * width * sizeof(png_byte));
 
-	// Write image data
+	/* Write image data, one row at a time. */
 	unsigned int x, y;
 	for (y=0 ; y<height ; y++) {
 		for (x=0 ; x<width ; x++) {
-			memcpy(row, &data[4*width*y], 4 * width * sizeof(png_byte));
+			memcpy(row, &data[channelCount*width*y], channelCount * width * sizeof(png_byte));
 		}
 		png_write_row(png_ptr, row);
 	}
 
-	// End write
+	/* End the PNG write operation */
 	png_write_end(png_ptr, NULL);
 
+	/* Clear up the memory from the heap */
 	finalise:
 	if (fp != NULL) fclose(fp);
 	if (info_ptr != NULL) png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
@@ -628,22 +649,4 @@ bool KRAPSDImporter::SaveTexture(const wchar_t *filename, unsigned int width, un
 	if (row != NULL) std::free(row);
 
 	return success;
-}
-
-inline void setRGB(png_byte *ptr, float val)
-{
-	int v = (int)(val * 767);
-	if (v < 0) v = 0;
-	if (v > 767) v = 767;
-	int offset = v % 256;
-
-	if (v<256) {
-		ptr[0] = 0; ptr[1] = 0; ptr[2] = offset;
-	}
-	else if (v<512) {
-		ptr[0] = 0; ptr[1] = offset; ptr[2] = 255-offset;
-	}
-	else {
-		ptr[0] = offset; ptr[1] = 255-offset; ptr[2] = 0;
-	}
 }

@@ -63,11 +63,11 @@ namespace godot {
 class KRAPSDImporter : public Reference {
     GODOT_CLASS(KRAPSDImporter, Reference)
 
-typedef enum
-{
-    PNG,
-    TGA
-} EXPORT_TYPE;
+//typedef enum
+//{
+//    PNG,
+//    TGA
+//} EXPORT_TYPE;
 
 typedef enum
 {
@@ -91,7 +91,7 @@ private:
     bool cropToCanvas;
     bool mirrorUniverse;
 
-    int exportType;
+    //int exportType;
     int importType;
     int channelType;
 
