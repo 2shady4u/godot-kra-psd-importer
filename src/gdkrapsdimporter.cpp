@@ -203,6 +203,10 @@ bool KRAPSDImporter::ExportAllKRALayers()
 
 	KraDocument* document = CreateKraDocument(rawFile);
 
+	DestroyKraDocument(document);
+
+	return true;
+
 	std::vector<KraExportedLayer*> exportedLayers = CreateKraExportLayers(document);
 
 	for (auto const& layer : exportedLayers)

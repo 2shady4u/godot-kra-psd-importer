@@ -18,7 +18,6 @@ opts.Add(PathVariable('vcpkg_path', 'The path to the installed vcpkg libraries.'
 # Local dependency paths, adapt them to your setup
 godot_headers_path = "godot-cpp/godot_headers/"
 cpp_bindings_path = "godot-cpp/"
-zipper_bindings_path = "zipper/"
 cpp_library = "libgodot-cpp"
 
 # Currently only supports 64-bit architectures, 32-bit architectures might be possible.
@@ -27,8 +26,13 @@ bits = 64
 # Updates the environment with the option variables.
 opts.Update(env)
 
-sources = [Glob('src/*.cpp'), Glob('src/Kra/*.cpp'), 'src/tinyxml2/tinyxml2.cpp']
-zipper_lib_path = zipper_bindings_path
+sources = [
+Glob('src/*.cpp'), 
+Glob('src/Kra/*.cpp'),
+'src/tinyxml2/tinyxml2.cpp',
+Glob('src/zlib-1.2.11/*.c'),
+Glob('src/zlib-1.2.11/contrib/minizip/unzip.c'),
+Glob('src/zlib-1.2.11/contrib/minizip/ioapi.c')]
 
 # Process some arguments
 if env['use_llvm']:
@@ -51,7 +55,6 @@ if env['platform'] == "osx":
     env.Append(LINKFLAGS = ['-arch', 'x86_64'])
 
     env['vcpkg_path'] += '/x64-osx/'
-    zipper_lib_path += 'build/'
 
 elif env['platform'] in ('x11', 'linux'):
     env['target_path'] += 'x11/'
@@ -60,7 +63,6 @@ elif env['platform'] in ('x11', 'linux'):
     env.Append(CXXFLAGS = ['-std=c++17']) 
 
     env['vcpkg_path'] += '/x64-linux/'
-    zipper_lib_path += 'build/'
 
 elif env['platform'] == "windows":
     env['target_path'] += 'win64/'
@@ -73,7 +75,6 @@ elif env['platform'] == "windows":
 
     env['vcpkg_path'] += '/x64-windows/'
     sources += [Glob('src/Psd/*.cpp'), 'src/Psd/Psdminiz.c']
-    zipper_lib_path += 'build/Release/'
 
 # Create the path to the godot-cpp bindings library.
 cpp_library += '.release'
@@ -91,9 +92,8 @@ env['vcpkg_path'] + 'include/wand/',
 env['vcpkg_path'] + 'include/magick/',
 env['vcpkg_path'] + 'include/lzma/',
 env['vcpkg_path'] + 'include/libpng16/',
-env['vcpkg_path'] + 'include/freetype/',
-zipper_bindings_path + 'zipper/'])
-env.Append(LIBPATH=[cpp_bindings_path + 'bin/', env['vcpkg_path'] + 'lib/', zipper_lib_path])
+env['vcpkg_path'] + 'include/freetype/'])
+env.Append(LIBPATH=[cpp_bindings_path + 'bin/', env['vcpkg_path'] + 'lib/'])
 env.Append(LIBS=[cpp_library, 
 "bz2",
 "freetype",
@@ -103,8 +103,7 @@ env.Append(LIBS=[cpp_library,
 "lzma",
 "tiff",
 "tiffxx",
-"turbojpeg",
-"Zipper"])
+"turbojpeg"])
 
 # tweak this if you want to use different folders, or more folders, to store your source code in.
 env.Append(CPPPATH=['src/'])

@@ -14,6 +14,8 @@
 #include <cstring>
 #include <vector>
 #include <algorithm>
+#include <iostream>
+#include <sstream> 
 
 // Enum to define the layer type of the Kra layer.
 typedef enum

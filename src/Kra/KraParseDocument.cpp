@@ -20,87 +20,39 @@ KraDocument *CreateKraDocument(const std::wstring &filename)
 
 	/* Convert wstring to string */
 	std::string sFilename(filename.begin(), filename.end());
-	/* Unzip the KRA archive */
-	zipper::Unzipper unzipper(sFilename);
-	std::vector<zipper::ZipEntry> entries = unzipper.entries();
-	/* Go through all the entries until the 'maindoc.xml' has been found */
-	/* TODO: can probably be made faster in some way */
-	for (auto const &value : entries)
+
+	const char * path = sFilename.c_str();
+
+	unzFile test = unzOpen(path);
+
+	if (test == NULL)
 	{
-		if (value.name == "maindoc.xml")
-		{
-			has_maindoc = true;
-			printf("(Parsing Document) Found 'maindoc.xml', extracting document and layer properties\n");
-
-			std::vector<unsigned char> resultVector;
-			unzipper.extractEntryToMemory("maindoc.xml", resultVector);
-			/* Put the vector into a string and parse it using tinyXML2 */
-			std::string xmlString(resultVector.begin(), resultVector.end());
-			tinyxml2::XMLDocument xmlDocument;
-			xmlDocument.Parse(xmlString.c_str());
-			tinyxml2::XMLElement *xmlElement = xmlDocument.FirstChildElement("DOC")->FirstChildElement("IMAGE");
-
-			/* Get important document attributes from the XML-file */
-			document->width = ParseUIntAttribute(xmlElement, "width");
-			document->height = ParseUIntAttribute(xmlElement, "height");
-			document->name = ParseCharAttribute(xmlElement, "name");
-			const char *colorSpaceName = ParseCharAttribute(xmlElement, "colorspacename");
-			/* The color space defines the number of 'channels' */
-			/* Each separate layer has its own color space in KRA, so not sure if this necessary... */
-			if (strcmp(colorSpaceName, "RGBA") == 0)
-			{
-				document->channelCount = 4u;
-			}
-			else if (strcmp(colorSpaceName, "RGB") == 0)
-			{
-				document->channelCount = 3u;
-			}
-			else
-			{
-				document->channelCount = 0u;
-			}
-			printf("(Parsing Document) Document properties are extracted and have following values:\n");
-			printf("(Parsing Document)  	>> width = %i\n", document->width);
-			printf("(Parsing Document)  	>> height = %i\n", document->height);
-			printf("(Parsing Document)  	>> name = %s\n", document->name);
-			printf("(Parsing Document)  	>> channelCount = %i\n", document->channelCount);
-
-			/* Parse all the layers registered in the maindoc.xml and add them to the document */
-			document->layers = ParseLayers(xmlElement);
-
-			/* Go through all the layers and initiate their tiles */
-			/* Only layers of type paintlayer get  their tiles parsed8 */
-			/* This also automatically de-encrypts the tile data */
-			for (auto &layer : document->layers)
-			{
-				if (layer->type == kraLayerType::PAINT_LAYER)
-				{
-					const std::string &layerPath = (std::string)document->name + "/layers/" + (std::string)layer->filename;
-					std::vector<unsigned char> layerContent;
-					bool success = unzipper.extractEntryToMemory(layerPath, layerContent);
-					if (success == true)
-					{
-						/* Start extracting the tile data. */
-						layer->tiles = ParseTiles(layerContent);
-					}
-					else
-					{
-						printf("(Parsing Document) WARNING: Layer entry with path '%s' could not be found in KRA archive.\n", layerPath.c_str());
-					}
-				}
-			}
-			/* Break out of the loop! We found maindoc.xml! */
-			break;
-		}
+		printf("wooooo");
+		std::cout << path << std::endl;
 	}
-	unzipper.close();
+	else 
+	{
+		printf("wee");
+	}
 
-	if (has_maindoc == false)
+	int error_code1 = unzLocateFile(test, "maindoc.xml", 1);
+
+	int error_code2 = unzClose(test);
+
+	if (error_code1 == UNZ_OK)
+	{
+		printf("(Parsing Document) Found 'maindoc.xml', extracting document and layer properties\n");
+	}
+	else 
 	{
 		printf("(Parsing Document) WARNING: KRA archive did not contain maindoc.xml!\n");
 	}
 
+	std::cout << error_code1 << std::endl;
+	std::cout << error_code2 << std::endl;
+
 	return document;
+
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

@@ -12,9 +12,8 @@
 #include "KraLayer.h"
 #include "KraTile.h"
 
-#include <zipper.h>
-#include <unzipper.h>
 #include <tinyxml2/tinyxml2.h>
+#include <zlib-1.2.11/contrib/minizip/unzip.h>
 #include <regex>
 
 KRA_NAMESPACE_BEGIN
