@@ -247,8 +247,12 @@ std::vector<KraLayer *> ParseLayers(tinyxml2::XMLElement *xmlElement)
 			layer->type = kraLayerType::OTHER;
 		}
 
-		printf("(Parsing Document) Layer '%ws' properties are extracted and have following values:\n", layer->name);
-		printf("(Parsing Document)  	>> name = %ws\n", layer->name);
+		std::wstring ws(layer->name);
+		std::string str(ws.begin(), ws.end());
+		const char * cname = str.c_str();
+
+		printf("(Parsing Document) Layer '%s' properties are extracted and have following values:\n", cname);
+		printf("(Parsing Document)  	>> name = %s\n", cname);
 		printf("(Parsing Document)  	>> filename = %s\n", layer->filename);
 		printf("(Parsing Document)  	>> channelCount = %i\n", layer->channelCount);
 		printf("(Parsing Document)  	>> opacity = %i\n", layer->opacity);

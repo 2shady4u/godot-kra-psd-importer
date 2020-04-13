@@ -21,7 +21,10 @@ std::vector<KraExportedLayer *> CreateKraExportLayers(KraDocument *document)
     {
         if (layer->type != kraLayerType::PAINT_LAYER)
         {
-            printf("(Exporting Document) Ignoring non-exportable Layer '%ws'\n", layer->name);
+            std::wstring ws(layer->name);
+		    std::string str(ws.begin(), ws.end());
+		    const char * cname = str.c_str();
+            printf("(Exporting Document) Ignoring non-exportable Layer '%s'\n", cname);
         }
         else
         {
@@ -70,7 +73,11 @@ std::vector<KraExportedLayer *> CreateKraExportLayers(KraDocument *document)
             unsigned int numberOfRows = layerHeight / referenceTile->tileHeight;
             size_t composedDataSize = numberOfColumns * numberOfRows * referenceTile->decompressedLength;
 
-            printf("(Exporting Document) Exported Layer '%ws' properties are extracted and have following values:\n", exportedLayer->name);
+            std::wstring ws(exportedLayer->name);
+		    std::string str(ws.begin(), ws.end());
+		    const char * cname = str.c_str();
+
+            printf("(Exporting Document) Exported Layer '%s' properties are extracted and have following values:\n", cname);
             printf("(Exporting Document)  	>> numberOfColumns = %i\n", numberOfColumns);
             printf("(Exporting Document)  	>> numberOfRows = %i\n", numberOfRows);
             printf("(Exporting Document)  	>> layerWidth = %i\n", layerWidth);

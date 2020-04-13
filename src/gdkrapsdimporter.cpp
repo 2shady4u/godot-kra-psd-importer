@@ -557,6 +557,9 @@ bool KRAPSDImporter::SaveTexture(const wchar_t *filename, unsigned int width, un
 	png_infop info_ptr = NULL;
 	png_bytep row = NULL;
 	
+	unsigned int channelCount = 0u;
+	int colorType = 0;
+
 	std::wstring ws(filename);
 	std::string str(ws.begin(), ws.end());
 	const char * cFilename = str.c_str();
@@ -598,8 +601,6 @@ bool KRAPSDImporter::SaveTexture(const wchar_t *filename, unsigned int width, un
 
 	png_init_io(png_ptr, fp);
 
-	unsigned int channelCount = 0u;
-	int colorType = 0;
 	switch (channelType)
 	{
 	case MONOCHROME:
