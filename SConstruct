@@ -30,9 +30,10 @@ sources = [
 Glob('src/*.cpp'), 
 Glob('src/Kra/*.cpp'),
 'src/tinyxml2/tinyxml2.cpp',
-Glob('src/zlib-1.2.11/*.c'),
-Glob('src/zlib-1.2.11/contrib/minizip/unzip.c'),
-Glob('src/zlib-1.2.11/contrib/minizip/ioapi.c')]
+Glob('zlib/*.c'),
+Glob('libpng/*.c'),
+Glob('zlib/contrib/minizip/unzip.c'),
+Glob('zlib/contrib/minizip/ioapi.c')]
 
 # Process some arguments
 if env['use_llvm']:
@@ -86,24 +87,9 @@ godot_headers_path,
 cpp_bindings_path + 'include/', 
 cpp_bindings_path + 'include/core/', 
 cpp_bindings_path + 'include/gen/',
-env['vcpkg_path'] + 'include/',
-env['vcpkg_path'] + 'include/Magick++/',
-env['vcpkg_path'] + 'include/wand/',
-env['vcpkg_path'] + 'include/magick/',
-env['vcpkg_path'] + 'include/lzma/',
-env['vcpkg_path'] + 'include/libpng16/',
-env['vcpkg_path'] + 'include/freetype/'])
-env.Append(LIBPATH=[cpp_bindings_path + 'bin/', env['vcpkg_path'] + 'lib/'])
-env.Append(LIBS=[cpp_library, 
-"bz2",
-"freetype",
-"graphicsmagick",
-"jpeg",
-"libpng16",
-"lzma",
-"tiff",
-"tiffxx",
-"turbojpeg"])
+'zlib/'])
+env.Append(LIBPATH=[cpp_bindings_path + 'bin/'])
+env.Append(LIBS=[cpp_library])
 
 # tweak this if you want to use different folders, or more folders, to store your source code in.
 env.Append(CPPPATH=['src/'])

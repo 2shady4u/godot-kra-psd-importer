@@ -555,77 +555,95 @@ bool KRAPSDImporter::EmitPSDTextureProperties(std::wstring filename, Layer* laye
 // ---------------------------------------------------------------------------------------------------------------------
 bool KRAPSDImporter::SaveTexture(const wchar_t *filename, unsigned int width, unsigned int height, const uint8_t *data)
 {
-	try
-	{
-		/* Initialise ImageMagick library */
-		Magick::InitializeMagick(NULL);
 
-		const uint8_t *colors = data;
-		/* This part is a legacy loop, but I'm keeping it in just in case */
-		/*uint8_t *colors = new uint8_t[width * height * 4u];
-		for (unsigned int i = 0u; i < height; ++i)
-		{
-			for (unsigned int j = 0u; j < width; ++j)
-			{
-				const uint8_t r = data[(i * width + j) * 4u + 0u];
-				const uint8_t g = data[(i * width + j) * 4u + 1u];
-				const uint8_t b = data[(i * width + j) * 4u + 2u];
-				const uint8_t a = data[(i * width + j) * 4u + 3u];
-
-				colors[(i * width + j) * 4u + 0u] = r;
-				colors[(i * width + j) * 4u + 1u] = g;
-				colors[(i * width + j) * 4u + 2u] = b;
-				colors[(i * width + j) * 4u + 3u] = a;
-			}
-		}*/
-
-		/* Create Image object and read in from the data */
-		Magick::Image image;
-		switch (channelType)
-		{
-		case MONOCHROME:
-			image.read(width, height, "K", Magick::CharPixel, colors);
-			/* Black and white are switched for some reason? */
-			image.negate();
-			break;
-		case RGB:
-			image.read(width, height, "RGB", Magick::CharPixel, colors);
-			break;
-		case RGBA:
-			image.read(width, height, "RGBA", Magick::CharPixel, colors);
-			break;
-		}
-
-		/* Check if we need to resize anything */
-		constexpr static double EPSILON = 0.001;
-		if (fabs(resizeFactor - 1.0) > EPSILON)
-		{
-			Magick::Geometry oldSize = image.size();
-
-			float newWidth = (float)oldSize.width() * resizeFactor;
-			float newHeight = (float)oldSize.height() * resizeFactor;
-
-			Magick::Geometry newSize = Magick::Geometry((size_t)newWidth, (size_t)newHeight);
-
-			printf("(GDKRAPSDImporter) Resizing layer from [%i, %i] to new dimensions [%i, %i]\n", 
-			oldSize.width(), oldSize.height(), newSize.width(), newSize.height());
+	bool success = true;
+	FILE *fp = NULL;
+	png_structp png_ptr = NULL;
+	png_infop info_ptr = NULL;
+	png_bytep row = NULL;
 	
-			newSize.aspect(true);
-			image.resize(newSize);
+	std::wstring ws(filename);
+	std::string str(ws.begin(), ws.end());
+	const char * cFilename = str.c_str();
+
+	// Open file for writing (binary mode)
+	fp = fopen(cFilename, "wb");
+	if (fp == NULL) {
+		fprintf(stderr, "Could not open file %s for writing\n", cFilename);
+		success = false;
+		goto finalise;
+	}
+
+	// Initialize write structure
+	png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	if (png_ptr == NULL) {
+		fprintf(stderr, "Could not allocate write struct\n");
+		success = false;
+		goto finalise;
+	}
+
+	// Initialize info structure
+	info_ptr = png_create_info_struct(png_ptr);
+	if (info_ptr == NULL) {
+		fprintf(stderr, "Could not allocate info struct\n");
+		success = false;
+		goto finalise;
+	}
+
+	// Setup Exception handling
+	if (setjmp(png_jmpbuf(png_ptr))) {
+		fprintf(stderr, "Error during png creation\n");
+		success = false;
+		goto finalise;
+	}
+
+	png_init_io(png_ptr, fp);
+
+	// Write header (8 bit colour depth)
+	png_set_IHDR(png_ptr, info_ptr, width, height,
+			8, PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
+			PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+
+	png_write_info(png_ptr, info_ptr);
+
+	// Allocate memory for one row (3 bytes per pixel - RGB)
+	row = (png_bytep) malloc(4 * width * sizeof(png_byte));
+
+	// Write image data
+	unsigned int x, y;
+	for (y=0 ; y<height ; y++) {
+		for (x=0 ; x<width ; x++) {
+			memcpy(row, &data[4*width*y], 4 * width * sizeof(png_byte));
 		}
-
-		/* Write the image to a file */
-		/* GraphicsMagick gets the extension from the filename automagically */
-		std::wstring ws(filename);
-		std::string str(ws.begin(), ws.end());
-		image.write(str);
-
+		png_write_row(png_ptr, row);
 	}
-	catch (const std::exception &e)
-	{
-		errorMessage = "Unknown error (check console)";
-		Godot::print("GDKRAPSDImporter Error (GraphicsMagick):" + String(e.what()));
-		return false;
+
+	// End write
+	png_write_end(png_ptr, NULL);
+
+	finalise:
+	if (fp != NULL) fclose(fp);
+	if (info_ptr != NULL) png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
+	if (png_ptr != NULL) png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+	if (row != NULL) std::free(row);
+
+	return success;
+}
+
+inline void setRGB(png_byte *ptr, float val)
+{
+	int v = (int)(val * 767);
+	if (v < 0) v = 0;
+	if (v > 767) v = 767;
+	int offset = v % 256;
+
+	if (v<256) {
+		ptr[0] = 0; ptr[1] = 0; ptr[2] = offset;
 	}
-	return true;
+	else if (v<512) {
+		ptr[0] = 0; ptr[1] = offset; ptr[2] = 255-offset;
+	}
+	else {
+		ptr[0] = offset; ptr[1] = 255-offset; ptr[2] = 0;
+	}
 }

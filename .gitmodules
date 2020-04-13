@@ -1,6 +1,9 @@
 [submodule "godot-cpp"]
 	path = godot-cpp
 	url = https://github.com/GodotNativeTools/godot-cpp
-[submodule "zipper"]
-	path = zipper
-	url = https://github.com/sebastiandev/zipper.git
+[submodule "zlib"]
+	path = zlib
+	url = https://github.com/madler/zlib.git
+[submodule "libpng"]
+	path = libpng
+	url = https://github.com/glennrp/libpng.git

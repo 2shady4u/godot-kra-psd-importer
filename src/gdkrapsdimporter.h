@@ -5,7 +5,7 @@
 #include <Reference.hpp>
 #include <Directory.hpp>
 #include <ProjectSettings.hpp>
-#include <Magick++.h>
+#include <libpng/png.h>
 
 #include <vector>
 #include <fstream>
