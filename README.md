@@ -2,8 +2,8 @@
 
 # godot-kra-psd-importer
 
-**!!!DISCLAIMER !!! WORK IN PROGRESS**
-
+**!!!DISCLAIMER !!! WORK IN PROGRESS**  
+**DO NOT USE CURRENT MASTER BRANCH DUE TO UNSTABILITY!!!**  
 **LOOKING FOR HELP! THE SCOPE OF THIS PROJECT IS IMMENSE!**
 
 GDNative wrapper for Importing KRA- and PSD-files into Godot 3.1+, making it possible to significantly speed up development. Additionally, it does not require any additional compilation or mucking about with build scripts.
