@@ -79,12 +79,12 @@ As is evident, this layer contains a number of tiles, each having a single line 
 Following attributes are present in the main header:
 - **VERSION**: version statement of the saved file, in most cases this will be 2
 - **TILEWIDTH**: width of the saved tiles, by default this will be 64
-- **TILEHEIGTH**: height of the saved tiles, by default this will be 64
+- **TILEHEIGHT**: height of the saved tiles, by default this will be 64
 - **PIXELSIZE**: number of bytes stored for each pixel, RGBA requires 4 bytes
 - **DATA**: number of tiles that are stored for this layer
 
 An important value which can be derived from this is the uncompressed data byte size which will be equal to:  
-`UNCOMPRESSEDSIZE = PIXELSIZE*TILEWIDTH*TILEHEIGTH`
+`UNCOMPRESSEDSIZE = PIXELSIZE*TILEWIDTH*TILEHEIGHT`
 
 ### Tile header
 
