@@ -13,7 +13,6 @@ opts.Add(EnumVariable('p', "Compilation target, alias for 'platform'", '', ['', 
 opts.Add(BoolVariable('use_llvm', "Use the LLVM / Clang compiler", 'no'))
 opts.Add(PathVariable('target_path', 'The path where the lib is installed.', 'demo/addons/godot-kra-psd-importer/bin/'))
 opts.Add(PathVariable('target_name', 'The library name.', 'gdkrapsdimporter', PathVariable.PathAccept))
-opts.Add(PathVariable('vcpkg_path', 'The path to the installed vcpkg libraries.', 'C:/Users/pietb/Documents/Repositories/External/vcpkg/installed/'))
 
 # Local dependency paths, adapt them to your setup
 godot_headers_path = "godot-cpp/godot_headers/"
@@ -63,8 +62,6 @@ elif env['platform'] in ('x11', 'linux'):
     env.Append(CCFLAGS = ['-fPIC','-g','-O3'])
     env.Append(CXXFLAGS = ['-std=c++17']) 
 
-    env['vcpkg_path'] += '/x64-linux/'
-
 elif env['platform'] == "windows":
     env['target_path'] += 'win64/'
     cpp_library += '.windows'
@@ -74,7 +71,6 @@ elif env['platform'] == "windows":
     env.Append(CCFLAGS = ['-DWIN32', '-D_WIN32', '-D_WINDOWS', '-W3', '-GR', '-D_CRT_SECURE_NO_WARNINGS'])
     env.Append(CCFLAGS = ['-O2', '-EHsc', '-DNDEBUG', '-MD'])
 
-    env['vcpkg_path'] += '/x64-windows/'
     sources += [Glob('src/Psd/*.cpp'), 'src/Psd/Psdminiz.c']
 
 # Create the path to the godot-cpp bindings library.
