@@ -11,7 +11,7 @@ extends Control
 const NO_ERROR_TEXT := "No errors..." 
 
 enum FIELDS {RAW_FILE, TARGET_FOLDER}
-enum EXPORT_TYPE {PNG, TGA}
+#enum EXPORT_TYPE {PNG, TGA}
 
 var editor_plugin : EditorPlugin = null
 
@@ -19,7 +19,7 @@ var _editor_file_dialog := EditorFileDialog.new()
 var _data_fields := {
 	"raw_file_path": "res://addons/godot-kra-psd-importer/examples/PSDExample.psd", 
 	"target_folder_path": "res://",
-	"export_type": EXPORT_TYPE.PNG,
+	#"export_type": EXPORT_TYPE.PNG,
 	"crop_to_canvas": true,
 	"resize_factor": 1,
 	"mirror_universe": true
@@ -33,7 +33,7 @@ onready var _raw_file_line_edit : LineEdit
 onready var _raw_file_dialog_button : Button
 onready var _target_folder_line_edit : LineEdit
 onready var _target_folder_dialog_button : Button
-onready var _export_type_option_button : OptionButton
+#onready var _export_type_option_button : OptionButton
 onready var _crop_check_box : CheckBox
 onready var _mirror_check_box : CheckBox
 onready var _resize_h_slider : HSlider
@@ -46,8 +46,8 @@ onready var _error_label : Label
 onready var _packed_scene_creator : Node
 
 func _process(_delta : float):
-	if OS.get_name() != "Windows":
-		push_error("Failed to load plugin for OS '{0}', plugin is only available for Windows!".format([OS.get_name()]))
+	if OS.get_name() != "Windows" and OS.get_name() != "X11":
+		push_error("Failed to load plugin for OS '{0}', plugin is only available for Windows and X11!".format([OS.get_name()]))
 		set_process(false)
 		return
 
@@ -79,8 +79,8 @@ func _process(_delta : float):
 		_target_folder_line_edit.text = _data_fields.target_folder_path
 		_target_folder_dialog_button.connect("pressed", self, "_on_dialog_button_pressed", [FIELDS.TARGET_FOLDER])
 
-		_export_type_option_button = grid_container.get_node("ExportTypeButton")
-		_export_type_option_button.connect("item_selected", self, "_on_item_selected")
+		#_export_type_option_button = grid_container.get_node("ExportTypeButton")
+		#_export_type_option_button.connect("item_selected", self, "_on_item_selected")
 
 		_crop_check_box = grid_container.get_node("CropCheckBox")
 		_crop_check_box.pressed = _data_fields.crop_to_canvas
@@ -143,9 +143,9 @@ func _on_file_or_folder_selected(path: String, data_field : int):
 			if _editor_file_dialog.is_connected("dir_selected", self, "_on_file_or_folder_selected"):
 				_editor_file_dialog.disconnect("dir_selected", self, "_on_file_or_folder_selected")
 
-func _on_item_selected(id : int):
-	if _verbose_mode: print("Item selected...'{0}'".format([id]))
-	_data_fields.export_type = id
+#func _on_item_selected(id : int):
+#	if _verbose_mode: print("Item selected...'{0}'".format([id]))
+#	_data_fields.export_type = id
 
 func _on_crop_check_box_toggled(button_pressed : bool):
 	if _verbose_mode: print("Cropping CheckBox state toggled...'{0}'".format([button_pressed]))
@@ -174,7 +174,7 @@ func _import_button_pressed() -> void:
 	var kra_psd_importer = KRAPSDImporter.new()
 	kra_psd_importer.raw_file_path = _data_fields.raw_file_path
 	kra_psd_importer.target_folder_path = _data_fields.target_folder_path
-	kra_psd_importer.export_type = _data_fields.export_type
+	#kra_psd_importer.export_type = _data_fields.export_type
 	kra_psd_importer.crop_to_canvas = _data_fields.crop_to_canvas
 	kra_psd_importer.resize_factor = _data_fields.resize_factor
 	kra_psd_importer.mirror_universe = _data_fields.mirror_universe

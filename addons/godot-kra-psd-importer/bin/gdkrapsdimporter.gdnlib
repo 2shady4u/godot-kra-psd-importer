@@ -7,8 +7,10 @@ reloadable=false
 
 [entry]
 
-Windows.64="res://addons/godot-kra-psd-importer/bin/win64/lidgdkrapsdimporter.dll"
+Windows.64="res://addons/godot-kra-psd-importer/bin/win64/gdkrapsdimporter.dll"
+X11.64="res://addons/godot-kra-psd-importer/bin/x11/libgdkrapsdimporter.so"
 
 [dependencies]
 
 Windows.64=[  ]
+X11.64=[  ]
