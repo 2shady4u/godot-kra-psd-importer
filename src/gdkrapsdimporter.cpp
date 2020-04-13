@@ -202,6 +202,12 @@ bool KRAPSDImporter::ExportAllKRALayers()
 	const std::wstring targetFolder = targetFolderPath.unicode_str();
 
 	KraDocument* document = CreateKraDocument(rawFile);
+    if (document == NULL)
+    {
+        errorMessage = "Failed to open/unzip KRA archive!";
+		Godot::print("GDKRAPSDImporter Error: " + errorMessage);
+        return false;
+    }
 
 	std::vector<KraExportedLayer*> exportedLayers = CreateKraExportLayers(document);
 

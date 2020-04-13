@@ -14,7 +14,6 @@ KRA_NAMESPACE_BEGIN
 // ---------------------------------------------------------------------------------------------------------------------
 KraDocument *CreateKraDocument(const std::wstring &filename)
 {
-	KraDocument *document = new KraDocument;
 
 	/* Convert wstring to string */
 	std::string sFilename(filename.begin(), filename.end());
@@ -48,6 +47,7 @@ KraDocument *CreateKraDocument(const std::wstring &filename)
 	xmlDocument.Parse(xmlString.c_str());
 	tinyxml2::XMLElement *xmlElement = xmlDocument.FirstChildElement("DOC")->FirstChildElement("IMAGE");
 
+    KraDocument *document = new KraDocument;
 	/* Get important document attributes from the XML-file */
 	document->width = ParseUIntAttribute(xmlElement, "width");
 	document->height = ParseUIntAttribute(xmlElement, "height");
