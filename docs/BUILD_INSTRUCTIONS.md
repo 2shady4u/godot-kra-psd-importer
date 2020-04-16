@@ -39,7 +39,7 @@ cd godot-cpp
 scons p=windows bits=64 target=release generate_bindings=yes
 ```
 
-Currently, only the 'release' target is supported as this is a legacy setting from when ImageMagick was used as the importer's backbone. As such, 'debug' targets might become available in the future.
+Both debug and release targets are supported so feel free choose whichever is more suitable for your purposes.
 
 ## 3. Building the plugin
 
