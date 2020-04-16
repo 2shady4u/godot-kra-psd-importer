@@ -6,8 +6,8 @@ opts = Variables([], ARGUMENTS)
 # Gets the standard flags CC, CCX, etc.
 env = DefaultEnvironment()
 
-# Due to the nature of its dependencies, this library/plugin only supports release targets.
 # Define our options
+opts.Add(EnumVariable('target', "Compilation target", 'debug', ['d', 'debug', 'r', 'release']))
 opts.Add(EnumVariable('platform', "Compilation platform", '', ['', 'windows', 'x11', 'linux', 'osx']))
 opts.Add(EnumVariable('p', "Compilation target, alias for 'platform'", '', ['', 'windows', 'x11', 'linux', 'osx']))
 opts.Add(BoolVariable('use_llvm', "Use the LLVM / Clang compiler", 'no'))
@@ -29,8 +29,8 @@ sources = [
 Glob('src/*.cpp'), 
 Glob('src/Kra/*.cpp'),
 'src/tinyxml2/tinyxml2.cpp',
+Glob('libpng/*.c',exclude=['libpng/pngtest.c']),
 Glob('zlib/*.c'),
-Glob('libpng/*.c'),
 Glob('zlib/contrib/minizip/unzip.c'),
 Glob('zlib/contrib/minizip/ioapi.c')]
 
@@ -50,17 +50,24 @@ if env['platform'] == '':
 if env['platform'] == "osx":
     env['target_path'] += 'osx/'
     cpp_library += '.osx'
-    env.Append(CCFLAGS = ['-g','-O3', '-arch', 'x86_64'])
-    env.Append(CXXFLAGS = ['-std=c++17']) 
-    env.Append(LINKFLAGS = ['-arch', 'x86_64'])
-
-    env['vcpkg_path'] += '/x64-osx/'
+    if env['target'] in ('debug', 'd'):
+        env.Append(CCFLAGS = ['-g','-O2', '-arch', 'x86_64'])
+        env.Append(CXXFLAGS = ['-std=c++17']) 
+        env.Append(LINKFLAGS = ['-arch', 'x86_64'])
+    else:
+        env.Append(CCFLAGS = ['-g','-O3', '-arch', 'x86_64'])
+        env.Append(CXXFLAGS = ['-std=c++17']) 
+        env.Append(LINKFLAGS = ['-arch', 'x86_64'])
 
 elif env['platform'] in ('x11', 'linux'):
     env['target_path'] += 'x11/'
     cpp_library += '.linux'
-    env.Append(CCFLAGS = ['-fPIC','-g','-O3'])
-    env.Append(CXXFLAGS = ['-std=c++17']) 
+    if env['target'] in ('debug', 'd'):
+        env.Append(CCFLAGS = ['-fPIC','-g3','-Og'])
+        env.Append(CXXFLAGS = ['-std=c++17']) 
+    else:
+        env.Append(CCFLAGS = ['-fPIC','-g','-O3'])
+        env.Append(CXXFLAGS = ['-std=c++17']) 
 
 elif env['platform'] == "windows":
     env['target_path'] += 'win64/'
@@ -69,12 +76,19 @@ elif env['platform'] == "windows":
     # that way you can run scons in a vs 2017 prompt and it will find all the required tools
     env.Append(ENV = os.environ)
     env.Append(CCFLAGS = ['-DWIN32', '-D_WIN32', '-D_WINDOWS', '-W3', '-GR', '-D_CRT_SECURE_NO_WARNINGS'])
-    env.Append(CCFLAGS = ['-O2', '-EHsc', '-DNDEBUG', '-MD'])
+    if env['target'] in ('debug', 'd'):
+        env.Append(CCFLAGS = ['-EHsc', '-D_DEBUG', '-MDd'])
+    else:
+        env.Append(CCFLAGS = ['-O2', '-EHsc', '-DNDEBUG', '-MD'])
 
     sources += [Glob('src/Psd/*.cpp'), 'src/Psd/Psdminiz.c']
 
 # Create the path to the godot-cpp bindings library.
-cpp_library += '.release'
+if env['target'] in ('debug', 'd'):
+    cpp_library += '.debug'
+else:
+    cpp_library += '.release'
+
 cpp_library += '.' + str(bits)
 
 # make sure our binding library is properly included

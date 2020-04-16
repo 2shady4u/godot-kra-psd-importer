@@ -9,7 +9,7 @@ cd godot-kra-psd-importer
 git submodule update --init --recursive
 ```
 
-The remainder of this document assumes that this plugin is being compiled for Windows hosts. Compilation for Linux and, most likely, MacOS hosts is largely similar.
+The remainder of this document assumes that this plugin is being compiled for Windows hosts. Compilation for Linux and MacOS hosts is largely similar.
 
 ### Installation pre-requisites:
 - Visual Studio Community 2017 or 2019 (Other versions might also work, but weren't tested.)
@@ -41,7 +41,7 @@ scons p=windows bits=64 target=release generate_bindings=yes
 
 Currently, only the 'release' target is supported as this is a legacy setting from when ImageMagick was used as the importer's backbone. As such, 'debug' targets might become available in the future.
 
-## 4. Building the plugin
+## 3. Building the plugin
 
 After going through all previous steps, the SContruct file found in the repository should be sufficient 
 to build this project's C++ source code for Windows, with the help of following command:
