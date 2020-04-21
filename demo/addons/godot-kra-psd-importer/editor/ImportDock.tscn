@@ -76,12 +76,12 @@ scroll_horizontal_enabled = false
 
 [node name="VBoxContainer" type="VBoxContainer" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer"]
 margin_right = 1014.0
-margin_bottom = 108.0
+margin_bottom = 136.0
 size_flags_horizontal = 3
 
 [node name="GridContainer" type="GridContainer" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer"]
 margin_right = 1014.0
-margin_bottom = 108.0
+margin_bottom = 136.0
 size_flags_horizontal = 3
 columns = 2
 
@@ -208,17 +208,15 @@ __meta__ = {
 }
 
 [node name="ResizeLabel" type="Label" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer"]
-visible = false
 margin_top = 112.0
 margin_right = 85.0
-margin_bottom = 126.0
+margin_bottom = 136.0
 size_flags_horizontal = 0
 size_flags_vertical = 1
 text = "Resize Factor"
 valign = 1
 
 [node name="ResizeContainer" type="HBoxContainer" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer"]
-visible = false
 margin_left = 143.0
 margin_top = 112.0
 margin_right = 1014.0
@@ -233,9 +231,9 @@ margin_right = 809.0
 margin_bottom = 20.0
 size_flags_horizontal = 3
 size_flags_vertical = 4
-min_value = 0.1
-max_value = 4.0
-step = 0.05
+min_value = 0.01
+max_value = 10.0
+step = 0.01
 value = 1.0
 
 [node name="ResizeLineEdit" type="LineEdit" parent="VSplitContainer/MainVBoxContainer/Panel/MarginContainer/ScrollContainer/VBoxContainer/GridContainer/ResizeContainer"]
@@ -244,7 +242,6 @@ margin_right = 871.0
 margin_bottom = 24.0
 text = "1"
 align = 1
-editable = false
 
 [node name="ErrorLabel" type="Label" parent="VSplitContainer/MainVBoxContainer"]
 margin_top = 422.0

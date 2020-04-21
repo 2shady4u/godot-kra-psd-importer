@@ -96,6 +96,7 @@ func _process(_delta : float):
 		_resize_h_slider.value = _data_fields.resize_factor
 		_resize_line_edit.text = String(_data_fields.resize_factor)
 		_resize_h_slider.connect("value_changed", self, "_on_resize_h_slider_value_changed")
+		_resize_line_edit.connect("text_entered", self, "_on_resize_line_edit_text_entered")
 
 		_error_label = $VSplitContainer/MainVBoxContainer/ErrorLabel
 		_error_label.text = NO_ERROR_TEXT
@@ -158,6 +159,12 @@ func _on_mirror_check_box_toggled(button_pressed : bool):
 func _on_resize_h_slider_value_changed(value : float):
 	_data_fields.resize_factor = value
 	_resize_line_edit.text = String(value)
+
+func _on_resize_line_edit_text_entered(text : String):
+	_data_fields.resize_factor = float(text)
+	_resize_h_slider.value = float(text)
+	_resize_line_edit.text = String(float(text))
+	_resize_line_edit.release_focus()
 
 func _import_button_pressed() -> void:
 	if _verbose_mode: print("Import button pressed...")

@@ -565,10 +565,35 @@ bool KRAPSDImporter::SaveTexture(const wchar_t *filename, unsigned int width, un
 	
 	unsigned int channelCount = 0u;
 	int colorType = 0;
+	switch (channelType)
+	{
+	case MONOCHROME:
+		channelCount = 1;
+		colorType = PNG_COLOR_TYPE_GRAY;
+		break;
+	case RGB:
+		channelCount = 3;
+		colorType = PNG_COLOR_TYPE_RGB;
+		break;
+	case RGBA:
+		channelCount = 4;
+		colorType = PNG_COLOR_TYPE_RGBA;
+		break;
+	default:
+		return false;
+		break;
+	}
+
+	unsigned int resized_width = (unsigned int)((float)width*resizeFactor);
+	unsigned int resized_height = (unsigned int)((float)height*resizeFactor);
 
 	std::wstring ws(filename);
 	std::string str(ws.begin(), ws.end());
 	const char * cFilename = str.c_str();
+
+	avir :: CImageResizer<> ImageResizer( 8 );
+	uint8_t* resized_data = (uint8_t *)malloc(4 * resized_width * resized_height);
+	ImageResizer.resizeImage( data, (int)width, (int)height, 0, resized_data, (int)resized_width, (int)resized_height, 4, 0 );
 
 	// Open file for writing (binary mode)
 	fp = fopen(cFilename, "wb");
@@ -607,40 +632,21 @@ bool KRAPSDImporter::SaveTexture(const wchar_t *filename, unsigned int width, un
 
 	png_init_io(png_ptr, fp);
 
-	switch (channelType)
-	{
-	case MONOCHROME:
-		channelCount = 1;
-		colorType = PNG_COLOR_TYPE_GRAY;
-		break;
-	case RGB:
-		channelCount = 3;
-		colorType = PNG_COLOR_TYPE_RGB;
-		break;
-	case RGBA:
-		channelCount = 4;
-		colorType = PNG_COLOR_TYPE_RGBA;
-		break;
-	default:
-		return false;
-		break;
-	}
-
 	/* Write header depending on the channel type, always in 8 bit colour depth. */
-	png_set_IHDR(png_ptr, info_ptr, width, height,
+	png_set_IHDR(png_ptr, info_ptr, resized_width, resized_height,
 			8, colorType, PNG_INTERLACE_NONE,
 			PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
 
 	png_write_info(png_ptr, info_ptr);
 
 	/* Allocate memory for one row (channelCount per pixel - RGB ) */
-	row = (png_bytep) malloc(channelCount * width * sizeof(png_byte));
+	row = (png_bytep) malloc(channelCount * resized_width * sizeof(png_byte));
 
 	/* Write image data, one row at a time. */
 	unsigned int x, y;
-	for (y=0 ; y<height ; y++) {
-		for (x=0 ; x<width ; x++) {
-			memcpy(row, &data[channelCount*width*y], channelCount * width * sizeof(png_byte));
+	for (y=0 ; y<resized_height ; y++) {
+		for (x=0 ; x<resized_width ; x++) {
+			memcpy(row, &resized_data[channelCount*resized_width*y], channelCount * resized_width * sizeof(png_byte));
 		}
 		png_write_row(png_ptr, row);
 	}
@@ -650,6 +656,7 @@ bool KRAPSDImporter::SaveTexture(const wchar_t *filename, unsigned int width, un
 
 	/* Clear up the memory from the heap */
 	finalise:
+	if (resized_data != NULL) std::free(resized_data);
 	if (fp != NULL) fclose(fp);
 	if (info_ptr != NULL) png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
 	if (png_ptr != NULL) png_destroy_write_struct(&png_ptr, (png_infopp)NULL);

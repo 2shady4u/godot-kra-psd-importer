@@ -6,6 +6,7 @@
 #include <Directory.hpp>
 #include <ProjectSettings.hpp>
 #include <libpng/png.h>
+#include "avir/avir.h"
 
 #include <vector>
 #include <fstream>
