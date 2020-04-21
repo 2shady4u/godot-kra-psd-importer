@@ -565,6 +565,24 @@ bool KRAPSDImporter::SaveTexture(const wchar_t *filename, unsigned int width, un
 	
 	unsigned int channelCount = 0u;
 	int colorType = 0;
+	switch (channelType)
+	{
+	case MONOCHROME:
+		channelCount = 1;
+		colorType = PNG_COLOR_TYPE_GRAY;
+		break;
+	case RGB:
+		channelCount = 3;
+		colorType = PNG_COLOR_TYPE_RGB;
+		break;
+	case RGBA:
+		channelCount = 4;
+		colorType = PNG_COLOR_TYPE_RGBA;
+		break;
+	default:
+		return false;
+		break;
+	}
 
 	unsigned int resized_width = (unsigned int)((float)width*resizeFactor);
 	unsigned int resized_height = (unsigned int)((float)height*resizeFactor);
@@ -613,25 +631,6 @@ bool KRAPSDImporter::SaveTexture(const wchar_t *filename, unsigned int width, un
 	}
 
 	png_init_io(png_ptr, fp);
-
-	switch (channelType)
-	{
-	case MONOCHROME:
-		channelCount = 1;
-		colorType = PNG_COLOR_TYPE_GRAY;
-		break;
-	case RGB:
-		channelCount = 3;
-		colorType = PNG_COLOR_TYPE_RGB;
-		break;
-	case RGBA:
-		channelCount = 4;
-		colorType = PNG_COLOR_TYPE_RGBA;
-		break;
-	default:
-		return false;
-		break;
-	}
 
 	/* Write header depending on the channel type, always in 8 bit colour depth. */
 	png_set_IHDR(png_ptr, info_ptr, resized_width, resized_height,
