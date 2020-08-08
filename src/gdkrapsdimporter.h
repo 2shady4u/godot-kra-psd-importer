@@ -103,7 +103,7 @@ private:
     bool EmitPSDTextureProperties(std::wstring filename, psd::Layer* layer);
     #endif
     bool ExportAllKRALayers();
-    bool EmitKRATextureProperties(std::wstring filename, kra::KraExportedLayer* layer);
+    bool EmitKRATextureProperties(std::wstring filename, const std::unique_ptr<kra::KraExportedLayer> &layer);
     std::wstring ExportLayer(const wchar_t* name, unsigned int width, unsigned int height, const uint8_t* data);
     bool SaveTexture(const wchar_t* filename, unsigned int width, unsigned int height, const uint8_t* data);
 

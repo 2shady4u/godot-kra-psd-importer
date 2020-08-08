@@ -194,17 +194,17 @@ func _import_button_pressed() -> void:
 
 	var success : bool = kra_psd_importer.export_all_layers()
 
-	yield(editor_plugin.scan_sources(), "completed")
-	if not success:
-		_error_label.text = kra_psd_importer.error_message
-		_error_label.set("custom_colors/font_color", Color.red)
-	else:
-		_error_label.text = NO_ERROR_TEXT
-		_error_label.set("custom_colors/font_color", Color.green)
-	_error_label.update()
-	_import_button.disabled = false
-
-	if _data_fields.mirror_universe:
-		var result : int = _packed_scene_creator.finish_mirorred_layer_structure()
-		if result == OK:
-			editor_plugin.open_scene_from_path(_packed_scene_creator.layer_structure_path)
+#	yield(editor_plugin.scan_sources(), "completed")
+#	if not success:
+#		_error_label.text = kra_psd_importer.error_message
+#		_error_label.set("custom_colors/font_color", Color.red)
+#	else:
+#		_error_label.text = NO_ERROR_TEXT
+#		_error_label.set("custom_colors/font_color", Color.green)
+#	_error_label.update()
+#	_import_button.disabled = false
+#
+#	if _data_fields.mirror_universe:
+#		var result : int = _packed_scene_creator.finish_mirorred_layer_structure()
+#		if result == OK:
+#			editor_plugin.open_scene_from_path(_packed_scene_creator.layer_structure_path)

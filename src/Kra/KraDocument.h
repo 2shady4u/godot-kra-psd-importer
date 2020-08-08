@@ -22,7 +22,7 @@ struct KraDocument
 
     const char* name;
 
-    std::vector<KraLayer*> layers;
+    std::vector<std::unique_ptr<KraLayer>> layers;
 
 	bool corruptionFlag = false;
 };

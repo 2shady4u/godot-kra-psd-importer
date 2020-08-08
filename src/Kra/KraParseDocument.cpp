@@ -12,7 +12,7 @@ KRA_NAMESPACE_BEGIN
 // ---------------------------------------------------------------------------------------------------------------------
 // Create a KRA Document which contains document properties and a vector of KraLayer-pointers.
 // ---------------------------------------------------------------------------------------------------------------------
-KraDocument *CreateKraDocument(const std::wstring &filename)
+std::unique_ptr<KraDocument> CreateKraDocument(const std::wstring &filename)
 {
 
 	/* Convert wstring to string */
@@ -47,7 +47,7 @@ KraDocument *CreateKraDocument(const std::wstring &filename)
 	xmlDocument.Parse(xmlString.c_str());
 	tinyxml2::XMLElement *xmlElement = xmlDocument.FirstChildElement("DOC")->FirstChildElement("IMAGE");
 
-    KraDocument *document = new KraDocument;
+    std::unique_ptr<KraDocument> document = std::make_unique<KraDocument>();
 	/* Get important document attributes from the XML-file */
 	document->width = ParseUIntAttribute(xmlElement, "width");
 	document->height = ParseUIntAttribute(xmlElement, "height");
@@ -109,22 +109,15 @@ KraDocument *CreateKraDocument(const std::wstring &filename)
 // ---------------------------------------------------------------------------------------------------------------------
 // Cleans up all allocated memory on the heap.
 // ---------------------------------------------------------------------------------------------------------------------
-void DestroyKraDocument(KraDocument *&document)
+void DestroyKraDocument(std::unique_ptr<KraDocument> &document)
 {
-	while (document->layers.size() > 0)
+	for( auto const& layer : document->layers )
 	{
-		KraLayer *layer = document->layers.back();
-		while (layer->tiles.size() > 0)
+		for( auto const& tile : layer->tiles )
 		{
-			KraTile *tile = layer->tiles.back();
-			layer->tiles.pop_back();
 			free(tile->data);
-			delete tile;
 		}
-		document->layers.pop_back();
-		delete layer;
 	}
-	delete document;
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -192,9 +185,9 @@ const wchar_t *ParseWCharAttribute(const tinyxml2::XMLElement *xmlElement, const
 // ---------------------------------------------------------------------------------------------------------------------
 // Go through the XML-file and extract all the layer properties.
 // ---------------------------------------------------------------------------------------------------------------------
-std::vector<KraLayer *> ParseLayers(tinyxml2::XMLElement *xmlElement)
+std::vector<std::unique_ptr<KraLayer>> ParseLayers(tinyxml2::XMLElement *xmlElement)
 {
-	std::vector<KraLayer *> layers;
+	std::vector<std::unique_ptr<KraLayer>> layers;
 	const tinyxml2::XMLElement *layersElement = xmlElement->FirstChildElement("layers");
 	const tinyxml2::XMLElement *layerNode = layersElement->FirstChild()->ToElement();
 
@@ -202,7 +195,7 @@ std::vector<KraLayer *> ParseLayers(tinyxml2::XMLElement *xmlElement)
 	/* Keep trying to find a layer until we can't any new ones! */
 	while (layerNode != 0)
 	{
-		KraLayer *layer = new KraLayer;
+		std::unique_ptr<KraLayer> layer = std::make_unique<KraLayer>();
 		/* Get important layer attributes from the XML-file */
 		layer->x = ParseUIntAttribute(layerNode, "x");
 		layer->y = ParseUIntAttribute(layerNode, "y");
@@ -261,7 +254,7 @@ std::vector<KraLayer *> ParseLayers(tinyxml2::XMLElement *xmlElement)
 		printf("(Parsing Document)  	>> x = %i\n", layer->x);
 		printf("(Parsing Document)  	>> y = %i\n", layer->y);
 
-		layers.push_back(layer);
+		layers.push_back(std::move(layer));
 
 		/* Try to get the next layer entry... if not available break */
 		const tinyxml2::XMLNode *nextSibling = layerNode->NextSibling();
@@ -281,10 +274,10 @@ std::vector<KraLayer *> ParseLayers(tinyxml2::XMLElement *xmlElement)
 // ---------------------------------------------------------------------------------------------------------------------
 // Extract the tile data and properties from the raw binary data.
 // ---------------------------------------------------------------------------------------------------------------------
-std::vector<KraTile *> ParseTiles(std::vector<unsigned char> layerContent)
+std::vector<std::unique_ptr<KraTile>> ParseTiles(std::vector<unsigned char> layerContent)
 {
 
-	std::vector<KraTile *> tiles;
+	std::vector<std::unique_ptr<KraTile>> tiles;
 
 	/* This code works with a global pointer index that gets incremented depending on element size */
 	/* currentIndex obviously starts at zero and will be passed by reference */
@@ -308,7 +301,7 @@ std::vector<KraTile *> ParseTiles(std::vector<unsigned char> layerContent)
 
 	for (unsigned int i = 0; i < numberOfTiles; i++)
 	{
-		KraTile *tile = new KraTile;
+		std::unique_ptr<KraTile> tile = std::make_unique<KraTile>();
 		tile->version = version;
 		tile->tileWidth = tileWidth;
 		tile->tileHeight = tileHeight;
@@ -401,7 +394,7 @@ std::vector<KraTile *> ParseTiles(std::vector<unsigned char> layerContent)
 		}
 		printf("(Parsing Document)  	>> DATA END\n");
 
-		tiles.push_back(tile);
+		tiles.push_back(std::move(tile));
 
 		/* Add the compressedLength to the currentIndex so the next tile starts at the correct position */
 		currentIndex += tile->compressedLength;

@@ -15,7 +15,8 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
-#include <sstream> 
+#include <sstream>
+#include <memory> 
 
 #define WRITEBUFFERSIZE (8192)
 

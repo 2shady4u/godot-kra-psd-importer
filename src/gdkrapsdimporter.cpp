@@ -201,7 +201,7 @@ bool KRAPSDImporter::ExportAllKRALayers()
 	/* Convert to the necessary std::wstring */
 	const std::wstring targetFolder = targetFolderPath.unicode_str();
 
-	KraDocument* document = CreateKraDocument(rawFile);
+	std::unique_ptr<KraDocument> document = CreateKraDocument(rawFile);
     if (document == NULL)
     {
         errorMessage = "Failed to open/unzip KRA archive!";
@@ -209,7 +209,7 @@ bool KRAPSDImporter::ExportAllKRALayers()
         return false;
     }
 
-	std::vector<KraExportedLayer*> exportedLayers = CreateKraExportLayers(document);
+	std::vector<std::unique_ptr<KraExportedLayer>> exportedLayers = CreateKraExportLayers(document);
 
 	for (auto const& layer : exportedLayers)
 	{
@@ -230,16 +230,16 @@ bool KRAPSDImporter::ExportAllKRALayers()
 			break;
 		}
 		std::wstring filename = ExportLayer(layerName, layerWidth, layerHeight, data);
-		/* TODO: we should check if the file actually exists! */
+		// TODO: we should check if the file actually exists!
 		if (mirrorUniverse)
 		{
-			/* Emit the texture properties to Godot if a mirror universe is requested */
+			// Emit the texture properties to Godot if a mirror universe is requested
 			bool success = EmitKRATextureProperties(filename, layer);
 		}
 
 	}
 
-	/* Clean up the memory allocation of our structs */
+	// Clean up the memory allocation of our structs 
 	DestroyKraExportLayers(exportedLayers);
 	DestroyKraDocument(document);
 
@@ -510,7 +510,7 @@ std::wstring KRAPSDImporter::ExportLayer(const wchar_t* name, unsigned int width
 // ---------------------------------------------------------------------------------------------------------------------
 // Create a Dictionary that contains all of the texture properties as derived from the kra::KraExportedLayer
 // ---------------------------------------------------------------------------------------------------------------------
-bool KRAPSDImporter::EmitKRATextureProperties(std::wstring filename, KraExportedLayer* layer)
+bool KRAPSDImporter::EmitKRATextureProperties(std::wstring filename, const std::unique_ptr<KraExportedLayer> &layer)
 {
 	Dictionary textureProperties = Dictionary();
 	textureProperties["path"] = String(filename.c_str());

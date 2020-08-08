@@ -12,12 +12,12 @@ KRA_NAMESPACE_BEGIN
 // ---------------------------------------------------------------------------------------------------------------------
 // Take all the layers and their tiles and construct/compose the complete image!
 // ---------------------------------------------------------------------------------------------------------------------
-std::vector<KraExportedLayer *> CreateKraExportLayers(KraDocument *document)
+std::vector<std::unique_ptr<KraExportedLayer>> CreateKraExportLayers(std::unique_ptr<KraDocument> &document)
 {
 
-    std::vector<KraExportedLayer *> exportedLayers;
+    std::vector<std::unique_ptr<KraExportedLayer>> exportedLayers;
     /* Go through all the layers and add them to the exportedLayers vector */
-    for (auto const &layer : document->layers)
+    for (auto const& layer : document->layers)
     {
         if (layer->type != kraLayerType::PAINT_LAYER)
         {
@@ -28,7 +28,7 @@ std::vector<KraExportedLayer *> CreateKraExportLayers(KraDocument *document)
         }
         else
         {
-            KraExportedLayer *exportedLayer = new KraExportedLayer;
+            std::unique_ptr<KraExportedLayer> exportedLayer = std::make_unique<KraExportedLayer>();
             /* Copy all important properties immediately */
             exportedLayer->name = layer->name;
             exportedLayer->channelCount = layer->channelCount;
@@ -44,7 +44,7 @@ std::vector<KraExportedLayer *> CreateKraExportLayers(KraDocument *document)
             exportedLayer->bottom = 0;
 
             /* find the extents of the layer canvas */
-            for (auto const &tile : layer->tiles)
+            for (auto const& tile : layer->tiles)
             {
                 if (tile->left < exportedLayer->left)
                 {
@@ -68,7 +68,7 @@ std::vector<KraExportedLayer *> CreateKraExportLayers(KraDocument *document)
             unsigned int layerWidth = (unsigned int)(exportedLayer->right - exportedLayer->left);
 
             /* Get a reference tile and extract the number of horizontal and vertical tiles */
-            KraTile *referenceTile = layer->tiles[0];
+            std::unique_ptr<KraTile> &referenceTile = layer->tiles[0];
             unsigned int numberOfColumns = layerWidth / referenceTile->tileWidth;
             unsigned int numberOfRows = layerHeight / referenceTile->tileHeight;
             size_t composedDataSize = numberOfColumns * numberOfRows * referenceTile->decompressedLength;
@@ -98,7 +98,7 @@ std::vector<KraExportedLayer *> CreateKraExportLayers(KraDocument *document)
             /* IMPORTANT: Not all the tiles exist! */
             /* Empty tiles (containing full ALPHA) are not added as tiles! */
             /* Now we have to construct the data in such a way that all tiles are in the correct positions */
-            for (auto const &tile : layer->tiles)
+            for (auto const& tile : layer->tiles)
             {
                 int currentNormalizedTop = tile->top - exportedLayer->top;
                 int currentNormalizedLeft = tile->left - exportedLayer->left;
@@ -114,7 +114,7 @@ std::vector<KraExportedLayer *> CreateKraExportLayers(KraDocument *document)
                 }
             }
             exportedLayer->data = composedData;
-            exportedLayers.push_back(exportedLayer);
+            exportedLayers.push_back(std::move(exportedLayer));
         }
     }
     /* Reverse the direction of the vector, so that order is preserved in the Godot mirror universe */
@@ -125,14 +125,11 @@ std::vector<KraExportedLayer *> CreateKraExportLayers(KraDocument *document)
 // ---------------------------------------------------------------------------------------------------------------------
 // Clean up memory allocation from the heap.
 // ---------------------------------------------------------------------------------------------------------------------
-void DestroyKraExportLayers(std::vector<KraExportedLayer *> exportedLayers)
+void DestroyKraExportLayers(std::vector<std::unique_ptr<KraExportedLayer>> &exportedLayers)
 {
-    while (exportedLayers.size() > 0)
+    for( auto const& layer : exportedLayers )
     {
-        KraExportedLayer *layer = exportedLayers.back();
-        exportedLayers.pop_back();
         free(layer->data);
-        delete layer;
     }
 }
 
