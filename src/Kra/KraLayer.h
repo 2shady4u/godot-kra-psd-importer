@@ -28,7 +28,6 @@ struct KraLayer
     uint32_t type;
     bool isVisible;
 
-    KraLayer* parent;
     std::vector<std::unique_ptr<KraTile>> tiles;
 
     bool corruptionFlag = false;

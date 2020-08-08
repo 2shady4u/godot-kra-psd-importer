@@ -394,10 +394,11 @@ std::vector<std::unique_ptr<KraTile>> ParseTiles(std::vector<unsigned char> laye
 		}
 		printf("(Parsing Document)  	>> DATA END\n");
 
-		tiles.push_back(std::move(tile));
-
 		/* Add the compressedLength to the currentIndex so the next tile starts at the correct position */
+		// Needs to be done BEFORE moving the pointer's ownership to the vector!
 		currentIndex += tile->compressedLength;
+
+		tiles.push_back(std::move(tile));
 	}
 
 	return tiles;
