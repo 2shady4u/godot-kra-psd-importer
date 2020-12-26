@@ -141,7 +141,9 @@ elif env['platform'] == 'osx':
             'Only 64-bit builds are supported for the macOS target.'
         )
 
-    env.Append(CCFLAGS=['-g', '-arch', 'x86_64'])
+    # For compiling zlib on macOS, an additional compiler flag needs to be added!
+    # See: https://github.com/HaxeFoundation/hxcpp/issues/723
+    env.Append(CCFLAGS=['-g', '-arch', 'x86_64', '-DHAVE_UNISTD_H'])
     env.Append(CXXFLAGS=['-std=c++17'])
     env.Append(LINKFLAGS=[
         '-arch',
@@ -196,7 +198,7 @@ Glob('zlib/contrib/minizip/unzip.c'),
 Glob('zlib/contrib/minizip/ioapi.c')
 ]
 
-# Add sources for including PSD-support!
+# Add sources for including PSD-support! Only on Windows!
 if env['platform'] == "windows":
     sources += [Glob('src/Psd/*.cpp'), 'src/Psd/Psdminiz.c']
 
