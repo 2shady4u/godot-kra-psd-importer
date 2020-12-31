@@ -8,6 +8,7 @@ env:
   PROJECT_FOLDER: .
   TARGET_PATH: demo/addons/godot-kra-psd-importer/bin/win64/
   TARGET_NAME: libgdkrapsdimporter
+  TARGET: release
 
 jobs:
   windows-compilation:
@@ -47,9 +48,9 @@ jobs:
           cd ${{env.PROJECT_FOLDER}}
           Copy-Item "libpng/scripts/pnglibconf.h.prebuilt" -Destination "libpng/pnglibconf.h"
           cd godot-cpp
-          scons platform=windows bits=64 target=debug generate_bindings=yes -j4
+          scons platform=windows bits=64 target=${{env.TARGET}} generate_bindings=yes -j4
           cd ..
-          scons platform=windows target_path=${{env.TARGET_PATH}} target_name=${{env.TARGET_NAME}}
+          scons platform=windows target=${{env.TARGET}} target_path=${{env.TARGET_PATH}} target_name=${{env.TARGET_NAME}}
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v1
