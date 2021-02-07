@@ -128,7 +128,15 @@ if env['platform'] == 'linux':
     if env['target'] == 'debug':
         env.Append(CCFLAGS = ['-g3','-Og'])
     elif env['target'] == 'release':
-        env.Append(CCFLAGS = ['-g','-O3'])
+        env.Append(CCFLAGS = ['-O3'])
+        env.Append(LINKFLAGS = ['-s'])
+
+    if env['bits'] == '64':
+        env.Append(CCFLAGS=['-m64'])
+        env.Append(LINKFLAGS=['-m64'])
+    elif env['bits'] == '32':
+        env.Append(CCFLAGS=['-m32'])
+        env.Append(LINKFLAGS=['-m32'])
 
 elif env['platform'] == 'osx':
 
